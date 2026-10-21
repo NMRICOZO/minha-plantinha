@@ -1,0 +1,11 @@
+{
+  "name": "Minha Plantinha - Diário Visual de Plantas",
+  "description": "Diário visual e acompanhamento botânico pessoal, com linha do tempo de crescimento, comparação antes/depois, clima integrado, alertas meteorológicos, calendário de regas e biblioteca de cuidados.",
+  "requestFramePermissions": [
+    "geolocation",
+    "notifications"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
