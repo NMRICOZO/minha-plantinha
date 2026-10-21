@@ -27,8 +27,10 @@ import {
   Edit3, 
   ChevronRight,
   ShieldAlert,
-  Info
+  Info,
+  Dna
 } from 'lucide-react';
+import { GeneticsAssistantTab } from '../components/cannabis/GeneticsAssistantTab.tsx';
 
 interface CannabisViewProps {
   onSelectPhoto?: (url: string, caption?: string, plantName?: string) => void;
@@ -244,7 +246,7 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
   } = useApp();
 
   const [activeStageFilter, setActiveStageFilter] = useState<'all' | CannabisGrowthStage>('all');
-  const [activeSubTab, setActiveSubTab] = useState<'plants' | 'fertigation' | 'guide'>('plants');
+  const [activeSubTab, setActiveSubTab] = useState<'plants' | 'genetics' | 'fertigation' | 'guide'>('plants');
 
   // Modals state
   const [isNewPlantModalOpen, setIsNewPlantModalOpen] = useState(false);
@@ -322,11 +324,19 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-2">
             <button
+              onClick={() => setActiveSubTab('genetics')}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-emerald-950 font-bold text-xs shadow-md shadow-emerald-950 transition-transform active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Assistente de Genética (IA)</span>
+            </button>
+
+            <button
               onClick={() => {
                 setEditingPlant(null);
                 setIsNewPlantModalOpen(true);
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-emerald-950 font-bold text-xs shadow-md shadow-emerald-950 transition-transform active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>Novo Espécime</span>
@@ -341,7 +351,7 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
                   alert('Cadastre um espécime antes de registrar a fertirrigação.');
                 }
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
             >
               <Droplets className="w-3.5 h-3.5 text-cyan-400" />
               <span>Registrar Rega / pH</span>
@@ -388,10 +398,10 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
 
       {/* 2. Sub-tabs Segmented Control (iOS Style) */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/60 pb-3">
-        <div className="flex items-center gap-1.5 bg-[#07140f] p-1 rounded-2xl border border-emerald-900/50">
+        <div className="flex items-center gap-1.5 bg-[#07140f] p-1 rounded-2xl border border-emerald-900/50 overflow-x-auto">
           <button
             onClick={() => setActiveSubTab('plants')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
               activeSubTab === 'plants'
                 ? 'bg-emerald-600 text-emerald-950 shadow-md'
                 : 'text-emerald-300 hover:text-white'
@@ -402,8 +412,20 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
           </button>
 
           <button
+            onClick={() => setActiveSubTab('genetics')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              activeSubTab === 'genetics'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-emerald-950 shadow-md font-bold'
+                : 'text-emerald-300 hover:text-white'
+            }`}
+          >
+            <Dna className="w-3.5 h-3.5" />
+            <span>Assistente de Genética (IA)</span>
+          </button>
+
+          <button
             onClick={() => setActiveSubTab('fertigation')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
               activeSubTab === 'fertigation'
                 ? 'bg-emerald-600 text-emerald-950 shadow-md'
                 : 'text-emerald-300 hover:text-white'
@@ -415,7 +437,7 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
 
           <button
             onClick={() => setActiveSubTab('guide')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
               activeSubTab === 'guide'
                 ? 'bg-emerald-600 text-emerald-950 shadow-md'
                 : 'text-emerald-300 hover:text-white'
@@ -505,6 +527,14 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
             ))}
           </div>
         )
+      )}
+
+      {/* Subtab: Assistente de Genética (IA) */}
+      {activeSubTab === 'genetics' && (
+        <GeneticsAssistantTab
+          plants={cannabisPlants}
+          onUpdatePlantTargets={(plantId, targets) => updateCannabisPlant(plantId, targets)}
+        />
       )}
 
       {/* Subtab: Fertigation & Nutrients Log */}
@@ -1099,6 +1129,11 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
           </div>
         </div>
       )}
+
+      {/* Rodapé Legal Discreto (Requisito 6) */}
+      <footer className="mt-8 pt-4 border-t border-emerald-950/80 text-center text-[11px] text-emerald-400/60 font-mono">
+        Cultivo sujeito à legislação local. No Brasil, exige autorização judicial ou associação autorizada. Informações estritamente educativas e de redução de danos.
+      </footer>
 
     </div>
   );
