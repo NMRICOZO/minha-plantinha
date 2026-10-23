@@ -6,7 +6,7 @@ export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>((
 }, ref) => (
   <div
     ref={ref}
-    className={`glass-card rounded-[1.25rem] border border-white/8 text-[#eef4f0] shadow-xl ${className}`}
+    className={`bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-[var(--radius-lg)] shadow-[var(--shadow-card)] transition-all ${className}`}
     {...props}
   />
 ));
@@ -30,7 +30,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadi
 }, ref) => (
   <h3
     ref={ref}
-    className={`text-base sm:text-lg font-bold font-serif text-white tracking-tight ${className}`}
+    className={`text-base sm:text-lg font-bold font-serif text-[var(--text-primary)] tracking-tight ${className}`}
     {...props}
   />
 ));
@@ -42,7 +42,7 @@ export const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<H
 }, ref) => (
   <p
     ref={ref}
-    className={`text-xs text-[#9cb8a5] leading-relaxed ${className}`}
+    className={`text-xs text-[var(--text-muted)] leading-relaxed ${className}`}
     {...props}
   />
 ));
@@ -62,7 +62,7 @@ export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
 }, ref) => (
   <div
     ref={ref}
-    className={`p-4 bg-[#07130e]/80 border-t border-emerald-950/60 rounded-b-[1.25rem] flex items-center justify-between text-xs ${className}`}
+    className={`p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] rounded-b-[var(--radius-lg)] flex items-center justify-between text-xs text-[var(--text-secondary)] ${className}`}
     {...props}
   />
 ));

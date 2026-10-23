@@ -60,6 +60,7 @@ export const PhotoLightbox: React.FC<PhotoLightboxProps> = ({
 
           <button
             onClick={onClose}
+            aria-label="Fechar visualização de foto"
             className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -74,7 +75,7 @@ export const PhotoLightbox: React.FC<PhotoLightboxProps> = ({
       >
         <img
           src={photoUrl}
-          alt={caption || 'Visualização botânica'}
+          alt={caption || (plantName ? `Foto de ${plantName}` : 'Visualização da planta')}
           className="max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-white/10"
         />
       </div>

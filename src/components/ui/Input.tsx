@@ -19,7 +19,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   return (
     <div className="w-full space-y-1.5">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-semibold text-emerald-200">
+        <label htmlFor={inputId} className="block text-xs font-semibold text-[var(--text-secondary)]">
           {label}
         </label>
       )}
@@ -27,10 +27,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       <input
         ref={ref}
         id={inputId}
-        className={`w-full bg-[#07130e] text-white text-xs sm:text-sm rounded-[0.75rem] px-3.5 py-2.5 border transition-all placeholder:text-emerald-700/50 focus:outline-none disabled:opacity-50 ${
+        className={`w-full bg-[var(--bg-primary)] text-[var(--text-primary)] text-xs sm:text-sm rounded-[var(--radius-md)] px-3.5 py-2.5 border transition-all placeholder:text-[var(--text-muted)] focus:outline-none disabled:opacity-50 ${
           error
             ? 'border-rose-500/80 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/40'
-            : 'border-emerald-800/50 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30'
+            : 'border-[var(--border-subtle)] focus:border-[var(--accent-primary)] focus:ring-1 focus:ring-[var(--accent-primary)]/30'
         } ${className}`}
         {...props}
       />
@@ -38,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
       {error ? (
         <p className="text-[11px] text-rose-300 font-medium">{error}</p>
       ) : helperText ? (
-        <p className="text-[11px] text-emerald-400/70">{helperText}</p>
+        <p className="text-[11px] text-[var(--text-muted)]">{helperText}</p>
       ) : null}
     </div>
   );

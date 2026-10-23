@@ -10,244 +10,315 @@ import {
   Sun, 
   Wind, 
   Leaf, 
-  TreePine, 
-  Compass, 
   Eye, 
-  Calendar, 
   CheckCircle2, 
-  ShieldAlert,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Layers,
+  Palette
 } from 'lucide-react';
 
 export const DesignPreviewView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+  const [selectedTheme, setSelectedTheme] = useState<'horta' | 'cannabis'>('horta');
+  const [activeTabSample, setActiveTabSample] = useState<'visao_geral' | 'fases' | 'cuidados'>('visao_geral');
   const [inputValue, setInputValue] = useState('');
-  const [inputError, setInputError] = useState('');
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-16 animate-in fade-in duration-150">
+    <div className="max-w-5xl mx-auto space-y-8 pb-16 animate-in fade-in duration-150">
       
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-amber-950/30 border border-amber-800/50">
+      {/* Top Banner & Theme Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] shadow-sm">
         <div>
-          <Badge variant="amber" className="mb-1">Página de Validação Visual (Etapa 02)</Badge>
-          <h1 className="text-xl sm:text-2xl font-bold text-white font-serif">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Badge variant="primary">Guia de Estilo (Ambiente Interno)</Badge>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">Tokens Centralizados</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-serif">
             Design System & Componentes Base
           </h1>
-          <p className="text-xs text-amber-200/80 mt-1">
-            Esta visualização (/design-preview) é temporária para validação dos tokens do Tailwind v4 e deve ser removida antes da Etapa 22.
+          <p className="text-xs text-[var(--text-secondary)] mt-1">
+            Alterne o atributo <code className="bg-black/40 px-1.5 py-0.5 rounded text-[11px] text-[var(--accent-hover)] font-mono">data-theme</code> para inspecionar a adaptação em tempo real.
           </p>
         </div>
-        <Button variant="secondary" size="sm" onClick={onBack}>
-          ← Voltar ao App
-        </Button>
+
+        <div className="flex items-center gap-3">
+          {/* Theme Selector Toggle */}
+          <div className="flex items-center p-1 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)]">
+            <button
+              onClick={() => setSelectedTheme('horta')}
+              aria-label="Selecionar Tema Horta Tradicional"
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedTheme === 'horta'
+                  ? 'bg-[#c2593f] text-white shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              🍅 Horta Tradicional
+            </button>
+            <button
+              onClick={() => setSelectedTheme('cannabis')}
+              aria-label="Selecionar Tema Cannabis Medicinal"
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                selectedTheme === 'cannabis'
+                  ? 'bg-[#10b981] text-[#040907] font-bold shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              🍁 Cannabis Medicinal
+            </button>
+          </div>
+
+          <Button variant="secondary" size="sm" onClick={onBack}>
+            ← Voltar ao App
+          </Button>
+        </div>
       </div>
 
-      {/* 1. Color Palette Tokens */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <Leaf className="w-5 h-5 text-emerald-400" />
-          <span>1. Paleta de Cores Botânica (@theme)</span>
-        </h2>
-        <p className="text-xs text-emerald-400/70">
-          Tons profundos inspirados na vegetação de florestas úmidas com contraste WCAG AA validado.
-        </p>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          <div className="p-3 rounded-xl bg-[#08100d] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#08100d] border border-white/20" />
-            <span className="text-xs font-mono font-bold text-white block">#08100d</span>
-            <span className="text-[10px] text-emerald-400/60 block">Fundo Principal</span>
+      {/* THEMED CONTAINER: Everything inside responds to data-theme */}
+      <div 
+        data-theme={selectedTheme} 
+        className="p-6 sm:p-8 rounded-3xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] space-y-10 transition-colors duration-250 shadow-md"
+      >
+        
+        {/* Section 1: Palette Swatches with Hex Codes */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] font-serif flex items-center gap-2">
+              <Palette className="w-5 h-5 text-[var(--accent-hover)]" />
+              <span>1. Paleta de Cores Ativa ({selectedTheme === 'horta' ? 'Horta Tradicional' : 'Cannabis Medicinal'})</span>
+            </h2>
+            <span className="text-xs text-[var(--text-muted)] font-mono">Tokens Semânticos</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#0b1712] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#0b1712] border border-white/20" />
-            <span className="text-xs font-mono font-bold text-white block">#0b1712</span>
-            <span className="text-[10px] text-emerald-400/60 block">Fundo Elevado</span>
-          </div>
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+            {selectedTheme === 'horta' 
+              ? 'Tons de areia, linho, argila mineral e terracota queimado com contraste mínimo WCAG AA em todas as superfícies.' 
+              : 'Verdes botânicos profundos, esmeralda viva, detalhes âmbar de resina e contraste óptico para cultivo técnico.'}
+          </p>
 
-          <div className="p-3 rounded-xl bg-[#0e2219] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#0e2219] border border-white/20" />
-            <span className="text-xs font-mono font-bold text-white block">#0e2219</span>
-            <span className="text-[10px] text-emerald-400/60 block">Cards & Superfícies</span>
-          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg border border-[var(--border-strong)]" 
+                style={{ backgroundColor: 'var(--bg-primary)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#141311' : '#060e0a'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Fundo Primário</span>
+            </div>
 
-          <div className="p-3 rounded-xl bg-[#059669] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#059669]" />
-            <span className="text-xs font-mono font-bold text-white block">#059669</span>
-            <span className="text-[10px] text-emerald-200 block">Primário Botânico</span>
-          </div>
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg border border-[var(--border-strong)]" 
+                style={{ backgroundColor: 'var(--bg-secondary)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#1a1916' : '#091611'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Fundo Elevado</span>
+            </div>
 
-          <div className="p-3 rounded-xl bg-[#10b981] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#10b981]" />
-            <span className="text-xs font-mono font-bold text-emerald-950 block">#10b981</span>
-            <span className="text-[10px] text-emerald-950 block">Destaques / Active</span>
-          </div>
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg border border-[var(--border-strong)]" 
+                style={{ backgroundColor: 'var(--bg-surface)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#22201c' : '#0d2018'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Card / Superfície</span>
+            </div>
 
-          <div className="p-3 rounded-xl bg-[#d97706] border border-white/10 space-y-1.5">
-            <div className="w-full h-12 rounded-lg bg-[#d97706]" />
-            <span className="text-xs font-mono font-bold text-white block">#d97706</span>
-            <span className="text-[10px] text-amber-200 block">Alerta / Terra</span>
-          </div>
-        </div>
-      </section>
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg" 
+                style={{ backgroundColor: 'var(--accent-primary)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#c2593f' : '#10b981'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Destaque Primário</span>
+            </div>
 
-      {/* 2. Typography Hierarchy */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <Eye className="w-5 h-5 text-emerald-400" />
-          <span>2. Hierarquia Tipográfica</span>
-        </h2>
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg" 
+                style={{ backgroundColor: 'var(--accent-hover)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#de7355' : '#34d399'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Acento Solar / Hover</span>
+            </div>
 
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 space-y-4">
-          <div>
-            <span className="text-[10px] text-emerald-400/60 uppercase font-mono">H1 / Título Botânico (Playfair Display)</span>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white font-serif">Monstera Deliciosa (Costela-de-Adão)</h1>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-emerald-400/60 uppercase font-mono">H2 / Subtítulo da Seção</span>
-            <h2 className="text-xl font-bold text-emerald-200 font-serif">Evolução e Linha do Tempo Visual</h2>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-emerald-400/60 uppercase font-mono">Body / Texto Corrido (Plus Jakarta Sans)</span>
-            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed max-w-2xl">
-              As folhas jovens iniciam com lâmina foliar inteira. Conforme a planta recebe luminosidade indireta adequada, as novas brotações surgem com fenestrações e recortes característicos da espécie.
-            </p>
-          </div>
-
-          <div>
-            <span className="text-[10px] text-emerald-400/60 uppercase font-mono">Metadados & Números (Font Mono)</span>
-            <p className="text-xs font-mono text-emerald-400">
-              IDADE: 6 meses e 5 dias • REGA: a cada 7 dias • FENESTRAÇÕES: 12
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Buttons Showcase */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-emerald-400" />
-          <span>3. Botões Customizados (Button)</span>
-        </h2>
-
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="primary">Botão Primário</Button>
-            <Button variant="secondary">Botão Secundário</Button>
-            <Button variant="outline">Botão Outline</Button>
-            <Button variant="ghost">Botão Ghost</Button>
-            <Button variant="destructive">Destrutivo</Button>
-            <Button variant="primary" isLoading>Carregando</Button>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Button variant="primary" size="sm">Pequeno (sm)</Button>
-            <Button variant="primary" size="md">Padrão (md)</Button>
-            <Button variant="primary" size="lg">Grande (lg)</Button>
-            <Button variant="secondary" size="icon" title="Ícone">
-              <Sprout className="w-4 h-4 text-emerald-400" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Badges */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          <span>4. Badges de Status & Tags</span>
-        </h2>
-
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 flex flex-wrap gap-2.5">
-          <Badge variant="botanical">#nova_folha</Badge>
-          <Badge variant="amber">Alerta Moderado</Badge>
-          <Badge variant="cyan">💧 Rega Hoje</Badge>
-          <Badge variant="rose">Crítico: Vento Forte</Badge>
-          <Badge variant="neutral">Ativa na Coleção</Badge>
-          <Badge variant="outline">+42 dias de evolução</Badge>
-        </div>
-      </section>
-
-      {/* 5. Inputs & Form Elements */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <Compass className="w-5 h-5 text-emerald-400" />
-          <span>5. Campos de Formulário (Input)</span>
-        </h2>
-
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Nome da Planta"
-            placeholder="Ex: Ficus Lyrata"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            helperText="Nome coloquial ou de afeto que você dá à planta"
-          />
-
-          <Input
-            label="Campo com Validação Ativa"
-            placeholder="Digite algo com erro"
-            value="Entrada inválida"
-            readOnly
-            error="O campo não atende aos critérios mínimos"
-          />
-        </div>
-      </section>
-
-      {/* 6. Skeletons (Loading States) */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <TreePine className="w-5 h-5 text-emerald-400" />
-          <span>6. Skeletons de Carregamento (Shimmer Botânico)</span>
-        </h2>
-
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 space-y-3">
-          <div className="flex items-center gap-3">
-            <Skeleton variant="circular" className="w-12 h-12 shrink-0" />
-            <div className="space-y-1.5 flex-1">
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-3 w-32" />
+            <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] space-y-1.5">
+              <div 
+                className="w-full h-12 rounded-lg" 
+                style={{ backgroundColor: 'var(--color-alert)' }} 
+              />
+              <span className="text-xs font-mono font-bold text-[var(--text-primary)] block">
+                {selectedTheme === 'horta' ? '#d97706' : '#f59e0b'}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] block">Âmbar Alerta / Tricoma</span>
             </div>
           </div>
-          <Skeleton className="h-24 w-full" />
-        </div>
-      </section>
+        </section>
 
-      {/* 7. Icon Library Guidelines */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif flex items-center gap-2">
-          <Sprout className="w-5 h-5 text-emerald-400" />
-          <span>7. Diretrizes da Biblioteca de Ícones (Lucide React)</span>
-        </h2>
+        {/* Section 2: Shared Typography Hierarchy */}
+        <section className="space-y-4">
+          <h2 className="text-lg font-bold text-[var(--text-primary)] font-serif flex items-center gap-2">
+            <Eye className="w-5 h-5 text-[var(--accent-hover)]" />
+            <span>2. Hierarquia Tipográfica Compartilhada</span>
+          </h2>
+          <p className="text-xs text-[var(--text-secondary)]">
+            Apenas 2 fontes estruturais: <strong>Playfair Display</strong> para títulos botânicos e <strong>Plus Jakarta Sans</strong> para leitura técnica e formulários.
+          </p>
 
-        <div className="glass-card p-5 rounded-2xl border border-emerald-900/40 space-y-3 text-xs leading-relaxed">
-          <div className="p-3 rounded-xl bg-emerald-950/50 border border-emerald-800/40 text-emerald-200">
-            <strong>Regra Estrita de Identidade:</strong> Não utilizar ícones genéricos de tecnologia ou negócios (foguetes, lâmpadas incandescentes clássicas, engrenagens robóticas). Todas as representações visuais devem dialogar com o universo botânico:
+          <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-4">
+            <div>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] block mb-1">Título Botânico Editorial (Playfair Display Bold 700)</span>
+              <h3 className="text-2xl font-bold font-serif text-[var(--text-primary)] tracking-tight">
+                {selectedTheme === 'horta' ? 'Tomateiro Cereja Selvagem' : 'Gorilla Glue #4 (GG4)'}
+              </h3>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] block mb-1">Nome Científico / Linhagem (Playfair Display Italic 400)</span>
+              <p className="text-sm font-serif italic text-[var(--text-secondary)]">
+                {selectedTheme === 'horta' ? 'Solanum lycopersicum var. cerasiforme' : 'Sour Dubb × Chem Sis × Chocolate Diesel'}
+              </p>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] block mb-1">Texto Corrido de Cuidados (Plus Jakarta Sans Regular 400)</span>
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed max-w-2xl">
+                O equilíbrio entre oxigenação radicular e retenção hídrica no substrato determina o vigor inicial da brotação. Monitorar as pontas das folhas antes de cada ciclo de fertilização mineral.
+              </p>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-mono text-[var(--text-muted)] block mb-1">Métricas Agronômicas & Leituras de Sensor (font-mono Medium 500)</span>
+              <p className="text-xs font-mono font-medium text-[var(--accent-hover)]">
+                Dia 42 • pH 6.2 • EC 1.4 mS/cm • 24.5°C • 62% UR • VPD 1.1 kPa
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 3: Standardized Base Components (Buttons, Cards, Inputs, Tabs, Badges) */}
+        <section className="space-y-6">
+          <h2 className="text-lg font-bold text-[var(--text-primary)] font-serif flex items-center gap-2">
+            <Layers className="w-5 h-5 text-[var(--accent-hover)]" />
+            <span>3. Componentes Base Padronizados</span>
+          </h2>
+
+          {/* Buttons */}
+          <div className="space-y-3">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] block">Botões (Button.tsx)</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="primary">Botão Primário</Button>
+              <Button variant="secondary">Botão Secundário</Button>
+              <Button variant="outline">Contorno</Button>
+              <Button variant="ghost">Fantasma</Button>
+              <Button variant="destructive">Excluir</Button>
+              <Button variant="primary" size="sm">Pequeno (sm)</Button>
+              <Button variant="primary" size="lg">Grande (lg)</Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="flex items-center gap-2 text-emerald-200">
-              <Sprout className="w-4 h-4 text-emerald-400" />
-              <span>Plantas & Brotações</span>
-            </div>
-            <div className="flex items-center gap-2 text-emerald-200">
-              <Droplets className="w-4 h-4 text-cyan-400" />
-              <span>Rega & Umidade</span>
-            </div>
-            <div className="flex items-center gap-2 text-emerald-200">
-              <Sun className="w-4 h-4 text-amber-400" />
-              <span>Luminosidade</span>
-            </div>
-            <div className="flex items-center gap-2 text-emerald-200">
-              <Wind className="w-4 h-4 text-teal-400" />
-              <span>Ventilação</span>
+          {/* Badges */}
+          <div className="space-y-3">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] block">Etiquetas / Badges (Badge.tsx)</span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <Badge variant="primary">Ativa</Badge>
+              <Badge variant="secondary">Outdoor / Sol</Badge>
+              <Badge variant="alert">Rega Pendente</Badge>
+              <Badge variant="neutral">Colheita em 14d</Badge>
+              <Badge variant="outline">Orgânico</Badge>
             </div>
           </div>
-        </div>
-      </section>
+
+          {/* Tabs Navigation Standard */}
+          <div className="space-y-3">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] block">Abas de Navegação</span>
+            <div className="flex items-center gap-2 p-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] w-fit">
+              {[
+                { id: 'visao_geral', label: 'Visão Geral' },
+                { id: 'fases', label: 'Fases do Cultivo' },
+                { id: 'cuidados', label: 'Histórico & Regas' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTabSample(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    activeTabSample === tab.id
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Form Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Nome da Espécie ou Strain"
+              placeholder="Ex: Manjericão Roxo ou OG Kush"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              helperText="Exibido na visualização principal e no diário"
+            />
+            <Input
+              label="Campo com Validação Ativa"
+              placeholder="Digite algo"
+              value="Dado com erro de exemplo"
+              readOnly
+              error="Verifique o formato antes de prosseguir"
+            />
+          </div>
+
+          {/* Standardized Card Sample */}
+          <div className="space-y-3">
+            <span className="text-xs font-semibold text-[var(--text-secondary)] block">Card Padrão (Card.tsx)</span>
+            <Card className="max-w-md">
+              <CardHeader>
+                <div className="flex items-center justify-between mb-1">
+                  <Badge variant="primary">Semana 4</Badge>
+                  <span className="text-[11px] font-mono text-[var(--text-muted)]">+28 dias</span>
+                </div>
+                <CardTitle>{selectedTheme === 'horta' ? 'Alecrim Silvestre' : 'Northern Lights'}</CardTitle>
+                <CardDescription>
+                  {selectedTheme === 'horta' 
+                    ? 'Regado com água solarizada há 2 dias. Brotação vigorosa.' 
+                    : 'Fotoperíodo 18/6h. Desenvolvimento saudável de ramos secundários.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="p-3 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--text-muted)]">Ambiente:</span>
+                    <span className="font-medium text-[var(--text-primary)]">Indoor / Substrato</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--text-muted)]">Próxima Ação:</span>
+                    <span className="font-medium text-[var(--accent-hover)]">Adubação rica em P/K</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <span className="font-mono text-[var(--text-muted)]">12 notas • 4 fotos</span>
+                <Button size="sm" variant="primary">Ver Detalhes →</Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+        </section>
+
+      </div>
 
     </div>
   );

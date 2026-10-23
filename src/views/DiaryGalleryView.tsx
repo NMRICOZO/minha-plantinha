@@ -35,29 +35,29 @@ const DiaryFeedCard = memo(({
   onSelectPhoto: (url: string, caption?: string, plantName?: string) => void;
   onOpenComparison: (plantId: string, photoUrl: string) => void;
 }) => (
-  <div className="glass-card rounded-2xl p-5 border border-emerald-900/40 hover:border-emerald-700/50 transition-all space-y-3">
+  <div className="bg-[var(--bg-surface)] rounded-2xl p-5 border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all space-y-3 shadow-sm">
     {/* Top: Plant Name, Date, Delete */}
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-950 pb-2.5">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-2.5">
       <div className="flex items-center gap-2">
         <button
           onClick={() => {
             if (plant) onSelectPlant(plant.id);
           }}
-          className="font-bold text-sm text-emerald-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+          className="font-bold text-sm text-[var(--text-primary)] hover:text-[var(--accent-primary)] transition-colors cursor-pointer flex items-center gap-1.5 min-h-[36px]"
         >
-          <Sprout className="w-4 h-4 text-emerald-400" />
+          <Sprout className="w-4 h-4 text-[var(--accent-primary)]" />
           <span>{plant?.name || 'Planta'}</span>
         </button>
         {plant?.species && (
-          <span className="text-xs text-emerald-400/60 italic hidden sm:inline">
+          <span className="text-xs text-[var(--text-muted)] italic hidden sm:inline">
             ({plant.species})
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-xs text-emerald-400/80 font-mono flex items-center gap-1">
-          <Calendar className="w-3.5 h-3.5 text-emerald-400" />
+        <span className="text-xs text-[var(--text-muted)] font-mono flex items-center gap-1">
+          <Calendar className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
           {entry.entry_date} {entry.entry_time ? `às ${entry.entry_time}` : ''}
         </span>
         <button
@@ -66,16 +66,17 @@ const DiaryFeedCard = memo(({
               onDeleteEntry(entry.id);
             }
           }}
-          className="p-1 rounded text-rose-400/60 hover:text-rose-300 transition-colors cursor-pointer"
+          className="p-2 rounded text-rose-500 hover:text-rose-600 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
           title="Excluir registro"
+          aria-label="Excluir registro do diário"
         >
-          <Trash2 className="w-3.5 h-3.5" />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>
 
     {/* Content text */}
-    <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed whitespace-pre-line">
+    <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">
       {entry.content}
     </p>
 
@@ -85,7 +86,7 @@ const DiaryFeedCard = memo(({
         {entry.tags.map(t => (
           <span
             key={t.id}
-            className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-800/40 text-emerald-300"
+            className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]"
           >
             #{t.name}
           </span>
@@ -100,7 +101,7 @@ const DiaryFeedCard = memo(({
           <div
             key={p.id}
             onClick={() => onSelectPhoto(p.storage_path, p.caption, plant?.name)}
-            className="group/photo relative aspect-4/3 rounded-xl overflow-hidden bg-black cursor-pointer border border-emerald-900/60"
+            className="group/photo relative aspect-4/3 rounded-xl overflow-hidden bg-black cursor-pointer border border-[var(--border-subtle)]"
           >
             <img
               src={p.storage_path}
@@ -118,7 +119,7 @@ const DiaryFeedCard = memo(({
                   e.stopPropagation();
                   if (plant) onOpenComparison(plant.id, p.storage_path);
                 }}
-                className="mt-1 px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-[10px] flex items-center gap-1 self-start cursor-pointer"
+                className="mt-1 px-2.5 py-1.5 rounded bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-[10px] flex items-center gap-1 self-start cursor-pointer min-h-[32px]"
               >
                 <Split className="w-3 h-3" />
                 <span>Comparar</span>
@@ -150,7 +151,7 @@ const GalleryPhotoItem = memo(({
 }) => (
   <div
     onClick={() => onSelectPhoto(photo.storage_path, photo.caption, photo.plant_name)}
-    className="group relative aspect-square rounded-2xl overflow-hidden bg-black cursor-pointer border border-emerald-900/50 hover:border-emerald-500/60 shadow-lg transition-all"
+    className="group relative aspect-square rounded-2xl overflow-hidden bg-black cursor-pointer border border-[var(--border-subtle)] hover:border-[var(--accent-primary)] shadow-md transition-all"
   >
     <img
       src={photo.storage_path}
@@ -164,20 +165,20 @@ const GalleryPhotoItem = memo(({
     
     {/* Overlay Badge */}
     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent p-3 flex flex-col justify-between opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-      <div className="self-end bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-mono text-emerald-300">
+      <div className="self-end bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-mono text-[var(--accent-primary)]">
         {photo.entry_date}
       </div>
 
       <div>
         <h4 className="text-xs font-bold text-white line-clamp-1">{photo.plant_name}</h4>
-        {photo.caption && <p className="text-[10px] text-emerald-300/80 line-clamp-1">{photo.caption}</p>}
+        {photo.caption && <p className="text-[10px] text-white/80 line-clamp-1">{photo.caption}</p>}
         
         <button
           onClick={(e) => {
             e.stopPropagation();
             onOpenComparison(photo.plant_id, photo.storage_path);
           }}
-          className="mt-2 px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-[10px] flex items-center gap-1 cursor-pointer"
+          className="mt-2 px-2.5 py-1.5 rounded-md bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-[10px] flex items-center gap-1 cursor-pointer min-h-[32px]"
         >
           <Split className="w-3 h-3" />
           <span>Comparar</span>
@@ -260,17 +261,17 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
       {/* Header & Sub-tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white font-serif tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-serif tracking-tight">
             Diário & Galeria Botânica
           </h1>
-          <p className="text-xs text-emerald-300/70 mt-0.5">
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">
             Histórico visual de brotações, novas folhas e transformações
           </p>
         </div>
 
         <button
           onClick={() => onOpenNewDiary()}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-xs sm:text-sm shadow-md shadow-emerald-950/60 transition-transform active:scale-95 cursor-pointer self-start sm:self-auto"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-xs sm:text-sm shadow-sm transition-transform active:scale-95 cursor-pointer self-start sm:self-auto min-h-[44px]"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Novo Registro no Diário</span>
@@ -278,14 +279,14 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
       </div>
 
       {/* Main Tab Controls: Feed vs Gallery */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/60 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveSubTab('feed')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 min-h-[44px] ${
               activeSubTab === 'feed'
-                ? 'bg-emerald-600 text-emerald-950 shadow-sm'
-                : 'text-emerald-300 hover:text-white hover:bg-emerald-950/50'
+                ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -294,10 +295,10 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
 
           <button
             onClick={() => setActiveSubTab('gallery')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 min-h-[44px] ${
               activeSubTab === 'gallery'
-                ? 'bg-emerald-600 text-emerald-950 shadow-sm'
-                : 'text-emerald-300 hover:text-white hover:bg-emerald-950/50'
+                ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--border-subtle)]'
             }`}
           >
             <ImageIcon className="w-4 h-4" />
@@ -307,11 +308,11 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
 
         {/* Gallery layout toggle if in gallery subtab */}
         {activeSubTab === 'gallery' && (
-          <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-emerald-900/40">
+          <div className="flex items-center gap-1 bg-[var(--bg-primary)] p-1 rounded-lg border border-[var(--border-subtle)]">
             <button
               onClick={() => setGalleryLayout('grid')}
-              className={`p-1.5 rounded text-xs transition-colors cursor-pointer ${
-                galleryLayout === 'grid' ? 'bg-emerald-700 text-white' : 'text-emerald-400/60 hover:text-white'
+              className={`p-2 rounded text-xs transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center ${
+                galleryLayout === 'grid' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
               title="Modo Grade"
             >
@@ -319,8 +320,8 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
             </button>
             <button
               onClick={() => setGalleryLayout('cards')}
-              className={`p-1.5 rounded text-xs transition-colors cursor-pointer ${
-                galleryLayout === 'cards' ? 'bg-emerald-700 text-white' : 'text-emerald-400/60 hover:text-white'
+              className={`p-2 rounded text-xs transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center ${
+                galleryLayout === 'cards' ? 'bg-[var(--accent-primary)] text-[var(--accent-text)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
               title="Modo Cartões"
             >
@@ -331,8 +332,8 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2.5 bg-[#091711] p-3 rounded-2xl border border-emerald-900/40 text-xs">
-        <div className="flex items-center gap-1.5 text-emerald-400 font-medium">
+      <div className="flex flex-wrap items-center gap-2.5 bg-[var(--bg-surface)] p-3 rounded-2xl border border-[var(--border-subtle)] text-xs shadow-sm">
+        <div className="flex items-center gap-1.5 text-[var(--accent-primary)] font-medium">
           <Filter className="w-3.5 h-3.5" />
           <span>Filtrar:</span>
         </div>
@@ -341,7 +342,7 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
         <select
           value={selectedPlantFilter}
           onChange={(e) => setSelectedPlantFilter(e.target.value)}
-          className="bg-[#050f0b] border border-emerald-800/50 rounded-lg px-2.5 py-1 text-emerald-200 text-xs focus:outline-none focus:border-emerald-500"
+          className="bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-primary)] min-h-[44px]"
         >
           <option value="all">Todas as plantas ({plants.length})</option>
           {plants.map(p => (
@@ -353,7 +354,7 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
         <select
           value={selectedTagFilter}
           onChange={(e) => setSelectedTagFilter(e.target.value)}
-          className="bg-[#050f0b] border border-emerald-800/50 rounded-lg px-2.5 py-1 text-emerald-200 text-xs focus:outline-none focus:border-emerald-500"
+          className="bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-lg px-3 py-2 text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-primary)] min-h-[44px]"
         >
           <option value="all">Todas as tags ({tags.length})</option>
           {tags.map(t => (
@@ -367,7 +368,7 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
               setSelectedPlantFilter('all');
               setSelectedTagFilter('all');
             }}
-            className="text-[11px] text-emerald-400 hover:underline ml-auto cursor-pointer"
+            className="text-[11px] text-[var(--accent-primary)] hover:underline ml-auto min-h-[44px] flex items-center"
           >
             Limpar filtros
           </button>
@@ -377,15 +378,15 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
       {/* Content Area */}
       {activeSubTab === 'feed' ? (
         filteredEntries.length === 0 ? (
-          <div className="text-center py-16 px-4 bg-emerald-950/20 rounded-2xl border border-emerald-900/30">
-            <BookOpen className="w-10 h-10 mx-auto text-emerald-500/50 mb-3" />
-            <p className="font-semibold text-emerald-200 text-sm">Nenhum registro encontrado no diário.</p>
-            <p className="text-xs text-emerald-400/60 max-w-sm mx-auto mt-1">
+          <div className="text-center py-16 px-4 bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] shadow-sm">
+            <BookOpen className="w-10 h-10 mx-auto text-[var(--accent-primary)] mb-3" />
+            <p className="font-semibold text-[var(--text-primary)] text-sm">Nenhum registro encontrado no diário.</p>
+            <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto mt-1">
               Registre a evolução das suas plantas com anotações e fotos de crescimento.
             </p>
             <button
               onClick={() => onOpenNewDiary()}
-              className="mt-3 px-4 py-2 rounded-xl bg-emerald-600 text-emerald-950 font-bold text-xs hover:bg-emerald-500 cursor-pointer"
+              className="mt-4 px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] text-[var(--accent-text)] font-bold text-xs hover:bg-[var(--accent-hover)] cursor-pointer min-h-[44px]"
             >
               Criar Novo Registro
             </button>
@@ -408,9 +409,9 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
       ) : (
         /* Gallery Subtab (Photos only) */
         allPhotos.length === 0 ? (
-          <div className="text-center py-16 px-4 bg-emerald-950/20 rounded-2xl border border-emerald-900/30">
-            <ImageIcon className="w-10 h-10 mx-auto text-emerald-500/50 mb-3" />
-            <p className="font-semibold text-emerald-200 text-sm">Nenhuma foto encontrada.</p>
+          <div className="text-center py-16 px-4 bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] shadow-sm">
+            <ImageIcon className="w-10 h-10 mx-auto text-[var(--accent-primary)] mb-3" />
+            <p className="font-semibold text-[var(--text-primary)] text-sm">Nenhuma foto encontrada.</p>
           </div>
         ) : galleryLayout === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -429,7 +430,7 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
             {allPhotos.map((photo, i) => (
               <div
                 key={photo.id || `${photo.entry_id}-${i}`}
-                className="glass-card rounded-2xl overflow-hidden border border-emerald-900/40 flex flex-col"
+                className="bg-[var(--bg-surface)] rounded-2xl overflow-hidden border border-[var(--border-subtle)] flex flex-col shadow-sm"
               >
                 <div 
                   onClick={() => onSelectPhoto(photo.storage_path, photo.caption, photo.plant_name)}
@@ -450,14 +451,14 @@ export const DiaryGalleryView: React.FC<DiaryGalleryViewProps> = ({
                 </div>
                 <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-white">{photo.plant_name}</h4>
-                    <p className="text-xs text-emerald-200/80 mt-1 line-clamp-2">{photo.entry_content}</p>
+                    <h4 className="font-bold text-sm text-[var(--text-primary)]">{photo.plant_name}</h4>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1 line-clamp-2">{photo.entry_content}</p>
                   </div>
                   <button
                     onClick={() => handleOpenComparison(photo.plant_id, photo.storage_path)}
-                    className="self-start px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800/40 text-[11px] font-medium flex items-center gap-1.5 cursor-pointer"
+                    className="self-start px-3 py-2 rounded-lg bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-medium flex items-center gap-1.5 cursor-pointer min-h-[44px]"
                   >
-                    <Split className="w-3 h-3" />
+                    <Split className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
                     <span>Abrir no Comparador</span>
                   </button>
                 </div>

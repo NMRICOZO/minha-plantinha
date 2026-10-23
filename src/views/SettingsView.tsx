@@ -158,42 +158,42 @@ export const SettingsView: React.FC = () => {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-emerald-400" />
-          <h1 className="text-xl sm:text-2xl font-bold text-white font-serif tracking-tight">
+          <Settings className="w-5 h-5 text-[var(--accent-primary)]" />
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-serif tracking-tight">
             Configurações Unificadas
           </h1>
         </div>
-        <p className="text-xs text-emerald-300/70 mt-1">
+        <p className="text-xs text-[var(--text-muted)] mt-1">
           Gerencie seu perfil, localização climática, regras de alerta e dados da conta
         </p>
       </div>
 
       {/* 1. SEÇÃO PERFIL (ETAPA 18 TAREFA 1 & 2) */}
-      <div className="glass-card rounded-2xl p-5 sm:p-6 border border-emerald-900/40 space-y-5">
-        <div className="flex items-center gap-2 text-sm font-bold text-white">
-          <User className="w-4 h-4 text-emerald-400" />
+      <div className="bg-[var(--bg-surface)] rounded-2xl p-5 sm:p-6 border border-[var(--border-subtle)] space-y-5 shadow-sm">
+        <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
+          <User className="w-4 h-4 text-[var(--accent-primary)]" />
           <span>Perfil do Usuário</span>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
           {/* Avatar Preview & Upload */}
           <div className="flex flex-col items-center gap-2 shrink-0">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden bg-black/60 border-2 border-emerald-600/60 group">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden bg-black/60 border-2 border-[var(--border-subtle)] group">
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-emerald-500">
+                <div className="w-full h-full flex items-center justify-center text-[var(--accent-primary)]">
                   <User className="w-8 h-8" />
                 </div>
               )}
               <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer">
-                <Camera className="w-4 h-4 text-emerald-300" />
-                <span className="text-[9px] text-emerald-200 mt-1">Alterar</span>
+                <Camera className="w-4 h-4 text-white" />
+                <span className="text-[9px] text-white mt-1">Alterar</span>
                 <input type="file" accept="image/*" onChange={handleAvatarFile} className="hidden" />
               </label>
             </div>
             
-            <label className="text-[11px] text-emerald-400 hover:text-emerald-300 cursor-pointer font-medium">
+            <label className="text-[11px] text-[var(--accent-primary)] hover:underline cursor-pointer font-medium min-h-[32px] flex items-center">
               Carregar foto
               <input type="file" accept="image/*" onChange={handleAvatarFile} className="hidden" />
             </label>
@@ -202,7 +202,7 @@ export const SettingsView: React.FC = () => {
           {/* Form Fields */}
           <div className="flex-1 w-full space-y-3">
             <div>
-              <label className="block text-xs font-medium text-emerald-300 mb-1">
+              <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1">
                 Nome de Exibição
               </label>
               <input
@@ -210,13 +210,13 @@ export const SettingsView: React.FC = () => {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Seu nome"
-                className="w-full bg-[#07130e] border border-emerald-800/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] min-h-[44px]"
               />
             </div>
 
             {/* Avatar presets */}
             <div>
-              <span className="text-[10px] text-emerald-400/70 block mb-1.5 font-medium">
+              <span className="text-[10px] text-[var(--text-muted)] block mb-1.5 font-medium">
                 Ou selecione um avatar rápido:
               </span>
               <div className="flex items-center gap-2">
@@ -228,8 +228,8 @@ export const SettingsView: React.FC = () => {
                       setAvatarPreview(preset);
                       updateUserProfile({ avatar_url: preset });
                     }}
-                    className={`w-8 h-8 rounded-full overflow-hidden border-2 transition-all cursor-pointer ${
-                      avatarPreview === preset ? 'border-emerald-400 scale-110 shadow-sm' : 'border-emerald-900/60 opacity-70 hover:opacity-100'
+                    className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all cursor-pointer ${
+                      avatarPreview === preset ? 'border-[var(--accent-primary)] scale-110 shadow-sm' : 'border-[var(--border-subtle)] opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={preset} alt={`Preset ${i}`} className="w-full h-full object-cover" />
@@ -242,7 +242,7 @@ export const SettingsView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSaveProfile}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-xs transition-colors cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-xs transition-colors cursor-pointer min-h-[44px]"
               >
                 Salvar Alterações do Perfil
               </button>

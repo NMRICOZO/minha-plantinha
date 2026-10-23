@@ -26,11 +26,24 @@ import {
 import { fetchOpenMeteoWeather } from '../services/weatherService.ts';
 import { evaluateWeatherAlerts } from '../utils/weatherRules.ts';
 
-export type ActiveTab = 'dashboard' | 'plantas' | 'cannabis' | 'diario' | 'calendario' | 'insights' | 'biblioteca' | 'configuracoes';
+export type CultivationMode = 'horta' | 'cannabis';
+
+export type ActiveTab = 
+  | 'dashboard' 
+  | 'plantas' 
+  | 'diario' 
+  | 'cuidados' 
+  | 'configuracoes' 
+  | 'cannabis' 
+  | 'calendario' 
+  | 'insights' 
+  | 'biblioteca';
 
 interface AppContextType {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
+  cultivationMode: CultivationMode;
+  setCultivationMode: (mode: CultivationMode) => void;
   selectedPlantId: string | null;
   setSelectedPlantId: (id: string | null) => void;
   
@@ -131,13 +144,24 @@ const STORAGE_KEYS = {
   PROFILE: 'minha_plantinha_profile_v1',
   ALERT_SETTINGS: 'minha_plantinha_alert_settings_v1',
   CACHED_WEATHER: 'minha_plantinha_cached_weather_v1',
-  CANNABIS_PLANTS: 'minha_plantinha_cannabis_plants_v1',
+  CANNABIS_PLANTS: 'minha_plantinha_cannabis_plants_v5',
   CANNABIS_FEED: 'minha_plantinha_cannabis_feed_v1',
 };
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [selectedPlantId, setSelectedPlantId] = useState<string | null>(null);
+
+  // Cultivation Mode: 'horta' (Traditional) vs 'cannabis' (Medicinal)
+  const [cultivationMode, setCultivationModeState] = useState<CultivationMode>(() => {
+    const saved = localStorage.getItem('minha_plantinha_mode_v1');
+    return (saved === 'cannabis' || saved === 'horta') ? saved : 'horta';
+  });
+
+  const setCultivationMode = useCallback((mode: CultivationMode) => {
+    setCultivationModeState(mode);
+    localStorage.setItem('minha_plantinha_mode_v1', mode);
+  }, []);
 
   // Comparison State
   const [comparisonPlantId, setComparisonPlantId] = useState<string | null>(null);
@@ -400,7 +424,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       target_rh: plantData.target_rh || 55,
       training_techniques: plantData.training_techniques || [],
       trichome_status: plantData.trichome_status || 'transparentes',
-      cover_photo_url: plantData.cover_photo_url || 'https://images.unsplash.com/photo-1536939459926-301728717817?auto=format&fit=crop&w=800&q=80',
+      cover_photo_url: plantData.cover_photo_url || 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=80',
       notes: plantData.notes || '',
       created_at: now,
       updated_at: now
@@ -717,6 +741,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       value={{
         activeTab,
         setActiveTab,
+        cultivationMode,
+        setCultivationMode,
         selectedPlantId,
         setSelectedPlantId,
         plants,

@@ -32,7 +32,7 @@ const StatCard = memo(({
   sublabel, 
   icon: Icon, 
   onClick, 
-  accentColor = 'text-emerald-400' 
+  accentColor = 'text-[var(--accent-primary)]' 
 }: { 
   label: string; 
   value: number; 
@@ -43,16 +43,16 @@ const StatCard = memo(({
 }) => (
   <div 
     onClick={onClick}
-    className="glass-card p-4 rounded-2xl border border-emerald-900/40 hover:border-emerald-600/40 transition-all cursor-pointer group"
+    className="bg-[var(--bg-surface)] p-4 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all cursor-pointer group shadow-sm"
   >
     <div className="flex items-center justify-between mb-2">
-      <span className="text-[11px] text-emerald-400/70 uppercase font-bold tracking-wider">{label}</span>
-      <div className={`w-7 h-7 rounded-lg bg-emerald-950 flex items-center justify-center ${accentColor} group-hover:scale-110 transition-transform`}>
+      <span className="text-[11px] text-[var(--text-muted)] uppercase font-bold tracking-wider">{label}</span>
+      <div className={`w-8 h-8 rounded-lg bg-[var(--bg-primary)] flex items-center justify-center ${accentColor} group-hover:scale-105 transition-transform`}>
         <Icon className="w-4 h-4" />
       </div>
     </div>
-    <div className="text-2xl font-extrabold text-white font-mono">{value}</div>
-    <span className={`text-[11px] ${accentColor}/80 mt-1 block`}>{sublabel}</span>
+    <div className="text-2xl font-extrabold text-[var(--text-primary)] font-mono">{value}</div>
+    <span className="text-[11px] text-[var(--text-secondary)] mt-1 block">{sublabel}</span>
   </div>
 ));
 StatCard.displayName = 'StatCard';
@@ -146,25 +146,25 @@ export const DashboardView: React.FC<DashboardViewProps> = memo(({
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       
-      {/* 1. Welcome Banner Adapted for User (iOS Safari Glass Style) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-emerald-950/80 via-[#0c2219]/80 to-[#07130e] p-5 sm:p-6 rounded-3xl border border-emerald-500/25 shadow-xl">
+      {/* 1. Welcome Banner Adapted for User */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--bg-surface)] p-5 sm:p-6 rounded-2xl border border-[var(--border-subtle)] shadow-sm">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--accent-primary)] font-mono">
               {formattedToday}
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-700/40 text-emerald-300">
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">
               {focusLabel}
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800/40 text-emerald-400/80 hidden xs:inline">
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-muted)] hidden xs:inline">
               {growTypeLabel}
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-white font-serif tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] font-serif tracking-tight">
             Olá, {userProfile.full_name || 'Cultivador'}!
           </h1>
-          <p className="text-xs text-emerald-300/80 mt-1 max-w-lg leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-lg leading-relaxed">
             Seu diário visual acompanha {activePlantsCount} plantas convencionais e {cannabisPlants.length} espécimes de cannabis com {totalPhotos} fotos documentadas.
           </p>
         </div>
@@ -173,16 +173,16 @@ export const DashboardView: React.FC<DashboardViewProps> = memo(({
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setIsWelcomeOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium text-xs transition-colors cursor-pointer min-h-[44px]"
             title="Abrir introdução e preferências"
           >
-            <span className="text-amber-400">✨</span>
+            <span className="text-amber-500">✨</span>
             <span>Tutorial</span>
           </button>
 
           <button
             onClick={() => onOpenNewDiary()}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-xs shadow-md shadow-emerald-900/40 transition-transform active:scale-95 cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-xs shadow-sm transition-transform active:scale-95 cursor-pointer min-h-[44px]"
           >
             <BookOpen className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>Novo Registro</span>
@@ -190,17 +190,17 @@ export const DashboardView: React.FC<DashboardViewProps> = memo(({
           
           <button
             onClick={() => onOpenNewEvent()}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium text-xs transition-colors cursor-pointer min-h-[44px]"
           >
-            <Droplets className="w-3.5 h-3.5 text-cyan-400" />
+            <Droplets className="w-3.5 h-3.5 text-cyan-500" />
             <span>Registrar Rega</span>
           </button>
 
           <button
             onClick={() => onOpenNewPlant()}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/60 text-emerald-200 border border-emerald-700/50 font-medium text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium text-xs transition-colors cursor-pointer min-h-[44px]"
           >
-            <Plus className="w-3.5 h-3.5 text-emerald-400" />
+            <Plus className="w-3.5 h-3.5 text-[var(--accent-primary)]" />
             <span>Nova Planta</span>
           </button>
         </div>

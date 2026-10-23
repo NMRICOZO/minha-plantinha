@@ -3,18 +3,12 @@ import { ChatMessage, GeneticsSheet, PlantContextData } from '../../types/geneti
 import { geminiGeneticsService } from '../../services/geminiGeneticsService.ts';
 import { 
   Send, 
-  Sparkles, 
   X, 
   Trash2, 
   Dna, 
-  Sprout, 
-  MessageSquare, 
-  HelpCircle, 
-  Paperclip, 
   Image as ImageIcon,
   Bot,
-  User,
-  ArrowDown
+  User
 } from 'lucide-react';
 
 interface GeneticsChatDrawerProps {
@@ -43,7 +37,6 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
   initialPhotoUrl,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    // Initial friendly greeting message
     const initialGreeting: ChatMessage = {
       id: 'greeting',
       role: 'assistant',
@@ -62,7 +55,6 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Auto scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -71,7 +63,6 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
     scrollToBottom();
   }, [messages, isStreaming]);
 
-  // Handle initial query if passed
   useEffect(() => {
     if (initialQuery && isOpen) {
       handleSend(initialQuery, initialPhotoUrl || undefined);
@@ -100,67 +91,63 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
     setAttachedPhoto(null);
     setIsStreaming(true);
 
-    const botMessageId = `assistant-${Date.now()}`;
-    const placeholderBotMessage: ChatMessage = {
-      id: botMessageId,
+    const assistantId = `assistant-${Date.now()}`;
+    const placeholderAssistantMessage: ChatMessage = {
+      id: assistantId,
       role: 'assistant',
       content: '',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages([...newMessages, placeholderBotMessage]);
+    setMessages([...newMessages, placeholderAssistantMessage]);
 
-    let accumulatedText = '';
-
-    await geminiGeneticsService.streamChat(
-      newMessages,
-      geneticsSheet,
-      plantContext,
-      (chunk) => {
-        accumulatedText += chunk;
-        setMessages((prev) =>
-          prev.map((m) => (m.id === botMessageId ? { ...m, content: accumulatedText } : m))
-        );
-      },
-      (finalText) => {
-        setIsStreaming(false);
-        setMessages((prev) =>
-          prev.map((m) => (m.id === botMessageId ? { ...m, content: finalText || accumulatedText } : m))
-        );
-      },
-      (err) => {
-        setIsStreaming(false);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === botMessageId
-              ? {
-                  ...m,
-                  content:
-                    'Desculpe, ocorreu uma instabilidade temporária na conexão. Por gentileza, repita sua pergunta ou verifique sua conexão.',
-                }
-              : m
-          )
-        );
-      }
-    );
+    try {
+      let accumulated = '';
+      await geminiGeneticsService.streamChat(
+        newMessages,
+        geneticsSheet,
+        plantContext,
+        (chunk: string) => {
+          accumulated += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === assistantId ? { ...msg, content: accumulated } : msg
+            )
+          );
+        }
+      );
+    } catch (err: any) {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantId
+            ? {
+                ...msg,
+                content:
+                  'Desculpe, ocorreu uma oscilação na resposta técnica. Por favor, tente reformular sua dúvida.',
+              }
+            : msg
+        )
+      );
+    } finally {
+      setIsStreaming(false);
+    }
   };
 
   const handleClearChat = () => {
-    if (window.confirm('Deseja limpar todo o histórico desta conversa?')) {
-      setMessages([
-        {
-          id: 'greeting-reset',
-          role: 'assistant',
-          content: 'Histórico reiniciado. O que você gostaria de consultar agora?',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-    }
+    setMessages([
+      {
+        id: 'greeting-reset',
+        role: 'assistant',
+        content: 'Histórico limpo. Como posso ajudar agora?',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      },
+    ]);
   };
 
   const handleAttachPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = () => {
       setAttachedPhoto(reader.result as string);
@@ -169,26 +156,24 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center sm:justify-end p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      
-      {/* Drawer Container (iOS Style modal or slide-over) */}
-      <div className="w-full sm:max-w-lg h-full sm:h-[92vh] bg-[#071510] border sm:border-emerald-700/50 sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-[var(--bg-surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-300">
         
         {/* Drawer Header */}
-        <div className="px-4 py-3.5 border-b border-emerald-900/60 bg-[#091d15] flex items-center justify-between">
+        <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-emerald-950 shadow-md">
+            <div className="w-8 h-8 rounded-xl bg-[var(--accent-primary)] flex items-center justify-center text-[var(--accent-text)] shadow-sm">
               <Bot className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="font-bold text-sm text-white font-serif">
+                <h3 className="font-bold text-sm text-[var(--text-primary)] font-serif">
                   Assistente de Cultivo & IA
                 </h3>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[var(--accent-hover)] animate-pulse" />
               </div>
-              <span className="text-[10px] text-emerald-400/80 font-mono block">
-                {geneticsSheet?.nome ? `Genética: ${geneticsSheet.nome}` : 'Consultoria Agronômica'}
+              <span className="text-[10px] text-[var(--text-muted)] font-mono block">
+                {geneticsSheet?.nome ? `Genética: ${geneticsSheet.nome}` : 'Consultoria Fitotécnica'}
                 {plantContext?.plant_name ? ` • ${plantContext.plant_name}` : ''}
               </span>
             </div>
@@ -197,14 +182,16 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
           <div className="flex items-center gap-1">
             <button
               onClick={handleClearChat}
-              className="p-1.5 rounded-lg text-emerald-400/60 hover:text-emerald-300 transition-colors cursor-pointer"
+              aria-label="Limpar histórico do chat"
+              className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               title="Limpar histórico"
             >
               <Trash2 className="w-4 h-4" />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-emerald-400 hover:text-white transition-colors cursor-pointer"
+              aria-label="Fechar chat com o assistente"
+              className="min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               title="Fechar chat"
             >
               <X className="w-5 h-5" />
@@ -213,15 +200,15 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
         </div>
 
         {/* Loaded Context Indicator Pill */}
-        <div className="px-4 py-2 bg-[#05100c] border-b border-emerald-950 flex items-center justify-between text-[11px] text-emerald-400 font-mono">
+        <div className="px-4 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-muted)] font-mono">
           <div className="flex items-center gap-1.5 truncate">
-            <Dna className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+            <Dna className="w-3.5 h-3.5 shrink-0 text-[var(--accent-hover)]" />
             <span className="truncate">
               Ficha & Contexto da Planta ativos na conversa
             </span>
           </div>
           {plantContext && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800/40 text-emerald-300 capitalize shrink-0">
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--text-secondary)] capitalize shrink-0">
               {plantContext.stage}
             </span>
           )}
@@ -237,16 +224,16 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
                 className={`flex gap-2.5 ${isUser ? 'justify-end' : 'justify-start'}`}
               >
                 {!isUser && (
-                  <div className="w-7 h-7 rounded-xl bg-emerald-950 border border-emerald-700/50 flex items-center justify-center text-emerald-400 shrink-0 self-end mb-1">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-hover)] shrink-0 self-end mb-1">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 shadow-md ${
+                  className={`max-w-[85%] rounded-2xl p-3.5 shadow-sm ${
                     isUser
-                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none'
-                      : 'bg-[#091b14] border border-emerald-900/60 text-emerald-100 rounded-bl-none'
+                      ? 'bg-[var(--accent-primary)] text-[var(--accent-text)] rounded-br-none'
+                      : 'bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-bl-none'
                   }`}
                 >
                   {/* Attached photo in message */}
@@ -263,7 +250,7 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
                   <div className="whitespace-pre-wrap leading-relaxed space-y-1">
                     {msg.content}
                     {isStreaming && msg.id.startsWith('assistant') && !msg.content && (
-                      <span className="inline-block animate-pulse text-emerald-400">
+                      <span className="inline-block animate-pulse text-[var(--accent-hover)]">
                         Pensando...
                       </span>
                     )}
@@ -271,7 +258,7 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
 
                   <span
                     className={`block text-[9px] mt-1.5 font-mono ${
-                      isUser ? 'text-emerald-100/70 text-right' : 'text-emerald-400/60'
+                      isUser ? 'text-white/80 text-right' : 'text-[var(--text-muted)]'
                     }`}
                   >
                     {msg.timestamp}
@@ -279,7 +266,7 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
                 </div>
 
                 {isUser && (
-                  <div className="w-7 h-7 rounded-xl bg-emerald-800 flex items-center justify-center text-white shrink-0 self-end mb-1">
+                  <div className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-primary)] shrink-0 self-end mb-1">
                     <User className="w-4 h-4" />
                   </div>
                 )}
@@ -290,14 +277,14 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
         </div>
 
         {/* Quick Suggestion Chips */}
-        <div className="px-3 py-2 bg-[#06120d] border-t border-emerald-950 overflow-x-auto flex items-center gap-1.5 text-xs">
-          <span className="text-[10px] text-emerald-400/60 font-mono shrink-0">Sugestões:</span>
+        <div className="px-3 py-2 bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] overflow-x-auto flex items-center gap-1.5 text-xs">
+          <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">Sugestões:</span>
           {QUICK_SUGGESTIONS.map((sug, idx) => (
             <button
               key={idx}
               onClick={() => handleSend(sug)}
               disabled={isStreaming}
-              className="px-2.5 py-1 rounded-xl bg-[#091c14] hover:bg-emerald-950 text-emerald-300 border border-emerald-800/40 text-[11px] whitespace-nowrap transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+              className="min-h-[44px] px-3 py-1.5 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] border border-[var(--border-subtle)] text-[11px] whitespace-nowrap transition-colors cursor-pointer shrink-0 disabled:opacity-50"
             >
               {sug}
             </button>
@@ -305,23 +292,24 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
         </div>
 
         {/* Input Bar */}
-        <div className="p-3 bg-[#081812] border-t border-emerald-900/60 space-y-2">
+        <div className="p-3 bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] space-y-2">
           {/* Photo attachment preview */}
           {attachedPhoto && (
-            <div className="flex items-center gap-2 p-1.5 rounded-xl bg-black/40 border border-emerald-800/40 text-xs">
+            <div className="flex items-center gap-2 p-1.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs">
               <img
                 src={attachedPhoto}
                 alt="Foto anexada"
                 className="w-10 h-10 object-cover rounded-lg"
               />
-              <span className="text-emerald-300 text-[11px] truncate flex-1">
+              <span className="text-[var(--text-secondary)] text-[11px] truncate flex-1">
                 Foto anexada para análise
               </span>
               <button
                 onClick={() => setAttachedPhoto(null)}
-                className="p-1 rounded-lg text-rose-400 hover:text-white cursor-pointer"
+                className="min-w-[44px] min-h-[44px] rounded-lg text-rose-300 hover:text-white flex items-center justify-center cursor-pointer"
+                aria-label="Remover anexo"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -344,8 +332,9 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2.5 rounded-xl bg-black/40 hover:bg-emerald-950 text-emerald-400 border border-emerald-800/50 transition-colors cursor-pointer shrink-0"
+              className="min-w-[44px] min-h-[44px] rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title="Anexar foto da planta"
+              aria-label="Anexar foto"
             >
               <ImageIcon className="w-4 h-4" />
             </button>
@@ -355,14 +344,15 @@ export const GeneticsChatDrawer: React.FC<GeneticsChatDrawerProps> = ({
               onChange={(e) => setInput(e.target.value)}
               placeholder="Pergunte sobre pH, rega, podas ou sintomas..."
               disabled={isStreaming}
-              className="flex-1 bg-black/40 border border-emerald-800/50 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-emerald-600 focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+              className="flex-1 min-h-[44px] bg-[var(--bg-primary)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-primary)] disabled:opacity-50"
             />
 
             <button
               type="submit"
               disabled={isStreaming || (!input.trim() && !attachedPhoto)}
-              className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-emerald-950 transition-transform active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0 font-bold"
+              className="min-w-[44px] min-h-[44px] rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] flex items-center justify-center transition-transform active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0 font-bold"
               title="Enviar mensagem"
+              aria-label="Enviar mensagem"
             >
               <Send className="w-4 h-4" />
             </button>

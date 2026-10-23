@@ -1,7 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  /* Botanical Palette - Deep, Elegant, Natural */
+  /* Horta Tradicional — Tons de Areia, Linho e Superfícies Orgânicas */
+  --color-sand-50: #faf8f5;
+  --color-sand-100: #f3efea;
+  --color-sand-200: #e7dfd5;
+  --color-sand-800: #24221d;
+  --color-sand-850: #1a1916;
+  --color-sand-900: #141311;
+  --color-sand-950: #0d0c0a;
+
+  /* Horta Tradicional — Terracota & Cerâmica Artesanal */
+  --color-terracotta-300: #f09b82;
+  --color-terracotta-400: #de7355;
+  --color-terracotta-500: #c2593f;
+  --color-terracotta-600: #a2422a;
+  --color-terracotta-900: #3d1810;
+
+  /* Horta Tradicional — Verde Folha & Jardim */
+  --color-garden-300: #86c5a9;
+  --color-garden-500: #3d7a60;
+  --color-garden-700: #234938;
+  --color-garden-800: #193327;
+
+  /* Cannabis Medicinal — Verdes Botânicos Especializados */
+  --color-cannabis-emerald-400: #34d399;
+  --color-cannabis-emerald-500: #10b981;
+  --color-cannabis-forest-800: #0e2219;
+  --color-cannabis-forest-900: #08100d;
+  --color-cannabis-forest-950: #040907;
+
+  /* Cannabis Medicinal — Âmbar Canabinoide (Tricomas & Resinas) */
+  --color-trichome-amber-300: #fcd34d;
+  --color-trichome-amber-400: #f59e0b;
+  --color-trichome-amber-500: #d97706;
+  --color-trichome-amber-800: #78350f;
+
+  /* Cannabis Medicinal — Tons Terrosos, Cobre & Substrato Coco */
+  --color-copper-400: #d98863;
+  --color-copper-500: #b85d36;
+  --color-coco-900: #231812;
+
+  /* Botanical Core Palette (Legado mantido para compatibilidade total) */
   --color-forest-950: #050c09;
   --color-forest-900: #08100d;
   --color-forest-850: #0b1712;
@@ -38,10 +78,59 @@
   /* Typography */
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 @layer base {
-  :root {
+  :root,
+  [data-theme="horta"],
+  [data-tema="horta"] {
+    /* TEMA HORTA TRADICIONAL — Cerâmica, areia, linho e calor mineral */
+    --bg-primary: #141311;
+    --bg-secondary: #1a1916;
+    --bg-surface: #22201c;
+    --bg-surface-hover: #2b2823;
+    --border-subtle: rgba(194, 89, 63, 0.22);
+    --border-strong: rgba(222, 115, 85, 0.48);
+    --text-primary: #faf8f5;
+    --text-secondary: #e7dfd5;
+    --text-muted: #b8a994;
+    --accent-primary: #c2593f;
+    --accent-hover: #de7355;
+    --accent-text: #ffffff;
+    --accent-secondary: #3d7a60;
+    --color-alert: #d97706;
+    --color-success: #3d7a60;
+    --shadow-card: 0 4px 14px -2px rgba(13, 12, 10, 0.5);
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    color-scheme: dark;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-theme="cannabis"],
+  [data-tema="cannabis"] {
+    /* TEMA CANNABIS MEDICINAL — Verdes botânicos, âmbar e precisão agronômica */
+    --bg-primary: #0a1711;
+    --bg-secondary: #0f2018;
+    --bg-surface: #142a20;
+    --bg-surface-hover: #1b3529;
+    --border-subtle: rgba(168, 197, 181, 0.18);
+    --border-strong: rgba(217, 119, 6, 0.35);
+    --text-primary: #f8fafc;
+    --text-secondary: #d8ede2;
+    --text-muted: #a8c5b5;
+    --accent-primary: #2d6a4f;
+    --accent-hover: #3b8463;
+    --accent-text: #ffffff;
+    --accent-secondary: #d97706;
+    --color-alert: #d97706;
+    --color-success: #2d6a4f;
+    --shadow-card: 0 4px 14px -2px rgba(6, 14, 10, 0.5);
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
     color-scheme: dark;
     -webkit-tap-highlight-color: transparent;
   }
@@ -53,11 +142,12 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-forest-900);
-    color: var(--color-sage-100);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   button, a, input, select, textarea {
@@ -85,33 +175,79 @@
   background: rgba(52, 211, 153, 0.6);
 }
 
-/* Glassmorphism helpers with theme tokens */
+/* Glassmorphism e Superfícies com Theme Tokens Semânticos */
 .glass-panel {
-  background: rgba(14, 34, 25, 0.82);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(52, 211, 153, 0.14);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .glass-card {
-  background: rgba(19, 44, 33, 0.65);
+  background: var(--bg-surface);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* Horta Tradicional — Cards com toque cerâmico artesanal e acolhedor */
+.horta-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.horta-card-hover {
+  transition: all 0.2s ease-in-out;
+}
+.horta-card-hover:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -6px rgba(13, 12, 10, 0.5);
+}
+
+.horta-panel {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease-in-out;
 }
 .glass-card-hover:hover {
-  border-color: rgba(52, 211, 153, 0.35);
+  border-color: var(--border-strong);
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 18px -4px rgba(16, 185, 129, 0.18);
+  box-shadow: 0 8px 20px -6px rgba(13, 12, 10, 0.5);
+}
+
+/* Suporte estrito a prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Botanical Glow */
 .botanical-glow {
   box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.2);
+}
+
+.terracotta-glow {
+  box-shadow: 0 0 35px -5px rgba(194, 89, 63, 0.22);
 }
 
 /* Skeleton Shimmer Animation */

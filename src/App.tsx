@@ -98,7 +98,11 @@ function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08100d] text-[#e3ece7] flex flex-col">
+    <div 
+      data-theme={activeTab === 'cannabis' ? 'cannabis' : 'horta'} 
+      data-tema={activeTab === 'cannabis' ? 'cannabis' : 'horta'}
+      className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col transition-colors duration-200"
+    >
       {/* Header */}
       <Header
         onOpenNewPlant={() => handleOpenNewPlant()}

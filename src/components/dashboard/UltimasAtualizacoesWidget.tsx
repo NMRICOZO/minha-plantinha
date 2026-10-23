@@ -23,11 +23,11 @@ const DiaryUpdateRow = memo(({
   const firstPhoto = entry.photos?.[0];
 
   return (
-    <div className="p-3.5 rounded-xl bg-[#091610] border border-emerald-900/50 hover:border-emerald-700/50 transition-all flex gap-3.5 items-start">
+    <div className="p-3.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all flex gap-3.5 items-start">
       {firstPhoto && (
         <div
           onClick={() => onSelectPhoto(firstPhoto.storage_path, firstPhoto.caption, plant?.name)}
-          className="w-16 h-16 rounded-xl overflow-hidden bg-black shrink-0 relative group cursor-pointer border border-emerald-800/40 aspect-square"
+          className="w-16 h-16 rounded-xl overflow-hidden bg-black shrink-0 relative group cursor-pointer border border-[var(--border-subtle)] aspect-square"
         >
           <img
             src={firstPhoto.storage_path}
@@ -36,7 +36,7 @@ const DiaryUpdateRow = memo(({
             decoding="async"
             width="64"
             height="64"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
           />
           {entry.photos.length > 1 && (
             <span className="absolute bottom-1 right-1 bg-black/80 text-[9px] px-1 rounded text-white font-mono">
@@ -52,16 +52,16 @@ const DiaryUpdateRow = memo(({
             onClick={() => {
               if (plant) onSelectPlant(plant.id);
             }}
-            className="font-bold text-xs text-emerald-300 hover:text-white transition-colors truncate cursor-pointer text-left"
+            className="font-bold text-xs text-[var(--accent-primary)] hover:text-[var(--text-primary)] transition-colors truncate cursor-pointer text-left min-h-[32px] flex items-center"
           >
             {plant?.name || 'Planta'}
           </button>
-          <span className="text-[10px] text-emerald-400/60 font-mono shrink-0">
+          <span className="text-[10px] text-[var(--text-muted)] font-mono shrink-0">
             {entry.entry_date}
           </span>
         </div>
 
-        <p className="text-xs text-emerald-100/90 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
           {entry.content}
         </p>
 
@@ -70,7 +70,7 @@ const DiaryUpdateRow = memo(({
             {entry.tags.slice(0, 3).map(tag => (
               <span
                 key={tag.id}
-                className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-800/40 text-emerald-300"
+                className="text-[9px] font-medium px-1.5 py-0.5 rounded bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)]"
               >
                 #{tag.name}
               </span>
@@ -107,16 +107,16 @@ export const UltimasAtualizacoesWidget: React.FC<UltimasAtualizacoesWidgetProps>
   }, [diaryEntries]);
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-5 border border-emerald-900/40 space-y-4">
+    <div className="bg-[var(--bg-surface)] rounded-2xl p-4 sm:p-5 border border-[var(--border-subtle)] space-y-4 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-emerald-950/80 flex items-center justify-center text-emerald-400">
+          <div className="w-8 h-8 rounded-xl bg-[var(--bg-primary)] flex items-center justify-center text-[var(--accent-primary)]">
             <BookOpen className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base text-white">Últimas Atualizações no Diário</h3>
-            <span className="text-[11px] text-emerald-400/70 font-mono">
+            <h3 className="font-bold text-sm sm:text-base text-[var(--text-primary)]">Últimas Atualizações no Diário</h3>
+            <span className="text-[11px] text-[var(--text-muted)] font-mono">
               {diaryEntries.length} registros documentados
             </span>
           </div>
@@ -124,7 +124,7 @@ export const UltimasAtualizacoesWidget: React.FC<UltimasAtualizacoesWidgetProps>
 
         <button
           onClick={() => setActiveTab('diario')}
-          className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5 cursor-pointer font-medium"
+          className="text-xs text-[var(--accent-primary)] hover:text-[var(--accent-hover)] flex items-center gap-0.5 cursor-pointer font-medium min-h-[44px]"
         >
           <span>Ver diário</span>
           <ChevronRight className="w-3.5 h-3.5" />
@@ -132,7 +132,7 @@ export const UltimasAtualizacoesWidget: React.FC<UltimasAtualizacoesWidgetProps>
       </div>
 
       {recentEntries.length === 0 ? (
-        <div className="text-center py-6 text-xs text-emerald-400/60">
+        <div className="text-center py-6 text-xs text-[var(--text-muted)]">
           Nenhuma nota cadastrada ainda no diário.
         </div>
       ) : (
@@ -152,7 +152,7 @@ export const UltimasAtualizacoesWidget: React.FC<UltimasAtualizacoesWidgetProps>
       {/* Quick Add */}
       <button
         onClick={() => onOpenNewDiary()}
-        className="w-full py-2 rounded-xl bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-800/40 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        className="w-full py-2.5 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
       >
         <Plus className="w-3.5 h-3.5" />
         <span>Novo Registro no Diário</span>

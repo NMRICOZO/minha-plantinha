@@ -21,7 +21,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-// Memoized Plant Card for Collection Grid
+// Memoized Plant Card for Collection Grid (Horta Tradicional)
 const PlantCard = memo(({
   plant,
   entryCount,
@@ -38,7 +38,7 @@ const PlantCard = memo(({
   return (
     <div
       onClick={() => onSelect(plant.id)}
-      className="glass-card rounded-2xl overflow-hidden border border-emerald-900/40 hover:border-emerald-600/50 transition-all cursor-pointer group flex flex-col justify-between"
+      className="horta-card rounded-2xl overflow-hidden horta-card-hover cursor-pointer group flex flex-col justify-between"
     >
       <div>
         {/* Card Cover Photo */}
@@ -54,13 +54,13 @@ const PlantCard = memo(({
           />
           
           {/* Age Badge */}
-          <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/20 text-[11px] font-mono text-emerald-300">
+          <div className="absolute top-3 left-3 bg-[#141311]/85 backdrop-blur-md px-2.5 py-1 rounded-lg border border-[#e7dfd5]/25 text-[11px] font-mono text-[#faf8f5] shadow-sm">
             {age.formatted}
           </div>
 
           {/* Status Pill */}
           {plant.status !== 'active' && (
-            <div className="absolute top-3 right-3 bg-amber-950/80 px-2.5 py-1 rounded-lg border border-amber-700/50 text-[10px] text-amber-200 capitalize">
+            <div className="absolute top-3 right-3 bg-[#3d1810]/90 px-2.5 py-1 rounded-lg border border-[#c2593f]/60 text-[10px] text-[#f09b82] capitalize font-medium">
               {plant.status}
             </div>
           )}
@@ -69,31 +69,31 @@ const PlantCard = memo(({
         {/* Body Content */}
         <div className="p-4 space-y-2.5">
           <div>
-            <h3 className="font-bold text-base text-white group-hover:text-emerald-300 transition-colors line-clamp-1">
+            <h3 className="font-bold text-lg text-white group-hover:text-[#f09b82] font-serif tracking-tight transition-colors line-clamp-1">
               {plant.name}
             </h3>
             {plant.species && (
-              <p className="text-xs text-emerald-400/70 italic font-serif line-clamp-1">
+              <p className="text-xs text-[#e7dfd5]/80 italic font-serif line-clamp-1">
                 {plant.species}
               </p>
             )}
           </div>
 
           {/* Meta row */}
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-emerald-300/80">
+          <div className="flex flex-wrap items-center gap-2 text-[11px]">
             {plant.location && (
-              <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-800/40 capitalize">
+              <span className="px-2 py-0.5 rounded-md bg-[#24221d] border border-[#c2593f]/25 text-[#f3efea] capitalize font-medium">
                 {plant.location}
               </span>
             )}
-            <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 border border-emerald-800/40 flex items-center gap-1">
-              <Droplets className="w-2.5 h-2.5 text-cyan-400" />
+            <span className="px-2 py-0.5 rounded-md bg-[#24221d] border border-[#c2593f]/25 text-[#f09b82] flex items-center gap-1 font-medium">
+              <Droplets className="w-2.5 h-2.5 text-[#de7355]" />
               {plant.watering_frequency_days ? `${plant.watering_frequency_days}d` : 'Rega'}
             </span>
           </div>
 
           {plant.notes && (
-            <p className="text-xs text-emerald-300/60 line-clamp-2 leading-relaxed">
+            <p className="text-xs text-[#e7dfd5]/75 line-clamp-2 leading-relaxed">
               {plant.notes}
             </p>
           )}
@@ -101,9 +101,9 @@ const PlantCard = memo(({
       </div>
 
       {/* Card Footer Actions */}
-      <div className="p-3 bg-[#07140f] border-t border-emerald-950 flex items-center justify-between text-xs text-emerald-400/70 font-mono">
+      <div className="p-3 bg-[#141311] border-t border-[#c2593f]/20 flex items-center justify-between text-xs text-[#e7dfd5]/80 font-mono">
         <span>{photoCount} fotos • {entryCount} notas</span>
-        <span className="text-emerald-400 group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 text-xs font-semibold">
+        <span className="text-[#de7355] group-hover:text-[#f09b82] group-hover:translate-x-0.5 transition-all flex items-center gap-0.5 text-xs font-semibold">
           Ver Timeline →
         </span>
       </div>
@@ -161,19 +161,21 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
         <div className="flex items-center justify-between">
           <button
             onClick={() => setSelectedPlantId(null)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/40 text-xs font-semibold transition-colors cursor-pointer"
+            aria-label="Voltar para lista de plantas"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1a1916]/80 hover:bg-[#24221d] text-[#faf8f5] border border-[#c2593f]/30 text-xs font-semibold transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-[#de7355]" />
             <span>Voltar para Plantas</span>
           </button>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => onOpenNewPlant(selectedPlant)}
-              className="p-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/40 text-xs transition-colors cursor-pointer"
+              aria-label="Editar dados da planta"
+              className="p-2 rounded-xl bg-[#1a1916]/80 hover:bg-[#24221d] text-[#e7dfd5] border border-[#c2593f]/30 text-xs transition-colors cursor-pointer"
               title="Editar dados da planta"
             >
-              <Edit3 className="w-4 h-4" />
+              <Edit3 className="w-4 h-4 text-[#de7355]" />
             </button>
             <button
               onClick={() => {
@@ -181,6 +183,7 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
                   deletePlant(selectedPlant.id);
                 }
               }}
+              aria-label="Excluir planta"
               className="p-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/40 text-xs transition-colors cursor-pointer"
               title="Excluir planta"
             >
@@ -190,13 +193,13 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
         </div>
 
         {/* Plant Hero Header */}
-        <div className="glass-panel rounded-3xl p-5 sm:p-6 border border-emerald-800/40 overflow-hidden relative">
+        <div className="horta-panel rounded-3xl p-5 sm:p-6 overflow-hidden relative shadow-lg">
           <div className="flex flex-col sm:flex-row gap-5 items-start">
             
             {/* Cover photo */}
             <div 
               onClick={() => onSelectPhoto(selectedPlant.cover_photo_url || '', selectedPlant.name, selectedPlant.name)}
-              className="w-full sm:w-44 h-44 rounded-2xl overflow-hidden bg-black shrink-0 relative group cursor-pointer border border-emerald-700/50 shadow-xl"
+              className="w-full sm:w-44 h-44 rounded-2xl overflow-hidden bg-black shrink-0 relative group cursor-pointer border border-[#c2593f]/40 shadow-xl"
             >
               <img
                 src={selectedPlant.cover_photo_url || 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=800&q=80'}
@@ -215,12 +218,12 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
                   <h1 className="text-xl sm:text-2xl font-bold text-white font-serif tracking-tight">
                     {selectedPlant.name}
                   </h1>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700/50">
+                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-[#141311] text-[#f09b82] border border-[#c2593f]/50">
                     {age.formatted}
                   </span>
                 </div>
                 {selectedPlant.species && (
-                  <p className="text-xs text-emerald-400/80 italic font-serif">
+                  <p className="text-xs text-[#e7dfd5]/85 italic font-serif">
                     {selectedPlant.species}
                   </p>
                 )}
@@ -229,36 +232,36 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
               {/* Badges */}
               <div className="flex flex-wrap gap-2 text-xs">
                 {selectedPlant.location && (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-200 flex items-center gap-1.5">
-                    <MapPin className="w-3 h-3 text-emerald-400" />
+                  <span className="px-2.5 py-1 rounded-lg bg-[#24221d] border border-[#c2593f]/25 text-[#faf8f5] flex items-center gap-1.5 font-medium">
+                    <MapPin className="w-3 h-3 text-[#de7355]" />
                     <span className="capitalize">{selectedPlant.location}</span>
                   </span>
                 )}
                 {selectedPlant.light_level && (
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-200 flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-lg bg-[#24221d] border border-[#c2593f]/25 text-[#faf8f5] flex items-center gap-1.5 font-medium">
                     <Sun className="w-3 h-3 text-amber-400" />
                     <span>Luz: {selectedPlant.light_level.replace('_', ' ')}</span>
                   </span>
                 )}
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-200 flex items-center gap-1.5">
-                  <Droplets className="w-3 h-3 text-cyan-400" />
+                <span className="px-2.5 py-1 rounded-lg bg-[#24221d] border border-[#c2593f]/25 text-[#faf8f5] flex items-center gap-1.5 font-medium">
+                  <Droplets className="w-3 h-3 text-[#de7355]" />
                   <span>Rega: {selectedPlant.watering_frequency_days ? `a cada ${selectedPlant.watering_frequency_days}d` : 'Sob demanda'}</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-200 flex items-center gap-1.5 font-mono">
-                  <Calendar className="w-3 h-3 text-emerald-400" />
+                <span className="px-2.5 py-1 rounded-lg bg-[#24221d] border border-[#c2593f]/25 text-[#faf8f5] flex items-center gap-1.5 font-mono">
+                  <Calendar className="w-3 h-3 text-[#de7355]" />
                   <span>Chegada: {selectedPlant.acquired_date}</span>
                 </span>
               </div>
 
               {/* Notes */}
               {selectedPlant.notes && (
-                <p className="text-xs text-emerald-200/80 bg-emerald-950/40 p-3 rounded-xl border border-emerald-900/50 leading-relaxed">
+                <p className="text-xs text-[#faf8f5]/90 bg-[#141311]/80 p-3 rounded-xl border border-[#c2593f]/20 leading-relaxed">
                   {selectedPlant.notes}
                 </p>
               )}
 
               {/* Summary Indicators */}
-              <div className="flex items-center gap-4 text-xs text-emerald-400/80 pt-1 font-mono">
+              <div className="flex items-center gap-4 text-xs text-[#e7dfd5]/80 pt-1 font-mono">
                 <span>{plantEntries.length} registros no diário</span>
                 <span>•</span>
                 <span>{plantPhotos.length} fotos</span>
@@ -271,13 +274,13 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
         </div>
 
         {/* Tab Selection */}
-        <div className="flex items-center gap-2 border-b border-emerald-900/60 pb-1">
+        <div className="flex items-center gap-2 border-b border-[#c2593f]/25 pb-1">
           <button
             onClick={() => setDetailTab('timeline')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 ${
               detailTab === 'timeline'
-                ? 'bg-emerald-600 text-emerald-950 shadow-md'
-                : 'text-emerald-300 hover:text-white hover:bg-emerald-950/50'
+                ? 'bg-[#c2593f] text-white shadow-md'
+                : 'text-[#e7dfd5]/80 hover:text-white hover:bg-[#24221d]'
             }`}
           >
             <Calendar className="w-4 h-4" />
@@ -426,14 +429,14 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
           <h1 className="text-xl sm:text-2xl font-bold text-white font-serif tracking-tight">
             Minhas Plantas
           </h1>
-          <p className="text-xs text-emerald-300/70 mt-0.5">
-            Gerenciamento individual, evolução cronológica e linha do tempo
+          <p className="text-xs text-[#e7dfd5]/80 mt-0.5">
+            Gerenciamento individual, evolução cronológica e linha do tempo da horta
           </p>
         </div>
 
         <button
           onClick={() => onOpenNewPlant()}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold text-xs sm:text-sm shadow-md shadow-emerald-950/60 transition-transform active:scale-95 cursor-pointer self-start sm:self-auto"
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#c2593f] hover:bg-[#a2422a] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#3d1810]/50 transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Cadastrar Nova Planta</span>
@@ -441,17 +444,17 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#0a1812] p-3 rounded-2xl border border-emerald-900/40">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#1a1916]/85 p-3 rounded-2xl border border-[#c2593f]/25 backdrop-blur-md">
         
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-emerald-500/60" />
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#de7355]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar por nome ou espécie..."
-            className="w-full bg-[#07130e] border border-emerald-800/40 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-emerald-600/60 focus:outline-none focus:border-emerald-500"
+            className="w-full bg-[#141311] border border-[#c2593f]/30 rounded-xl pl-9 pr-3 py-1.5 text-xs text-[#faf8f5] placeholder-[#e7dfd5]/50 focus:outline-none focus:border-[#de7355] transition-colors"
           />
         </div>
 
@@ -467,8 +470,8 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
               onClick={() => setStatusFilter(tab.id as 'all' | PlantStatus)}
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors shrink-0 cursor-pointer ${
                 statusFilter === tab.id
-                  ? 'bg-emerald-700 text-white font-bold'
-                  : 'bg-emerald-950/40 text-emerald-400/80 hover:text-emerald-200'
+                  ? 'bg-[#c2593f] text-white font-bold shadow-sm'
+                  : 'bg-[#24221d] text-[#e7dfd5]/80 hover:text-white hover:bg-[#343029]'
               }`}
             >
               {tab.label}
@@ -479,18 +482,18 @@ export const PlantsView: React.FC<PlantsViewProps> = ({
 
       {/* Plants Grid */}
       {filteredPlants.length === 0 ? (
-        <div className="text-center py-16 px-4 bg-emerald-950/20 rounded-2xl border border-emerald-900/30 space-y-3">
-          <div className="w-12 h-12 mx-auto rounded-full bg-emerald-900/40 flex items-center justify-center text-emerald-400">
+        <div className="text-center py-16 px-4 bg-[#1a1916]/50 rounded-2xl border border-[#c2593f]/20 space-y-3">
+          <div className="w-12 h-12 mx-auto rounded-full bg-[#3d1810]/60 flex items-center justify-center text-[#f09b82]">
             <Sprout className="w-6 h-6" />
           </div>
-          <p className="font-semibold text-sm text-emerald-200">Nenhuma planta encontrada</p>
-          <p className="text-xs text-emerald-400/60 max-w-sm mx-auto">
+          <p className="font-semibold text-sm text-[#faf8f5]">Nenhuma planta encontrada</p>
+          <p className="text-xs text-[#e7dfd5]/70 max-w-sm mx-auto">
             {searchQuery ? 'Tente alterar os termos de busca.' : 'Cadastre sua primeira planta para começar a documentar seu crescimento.'}
           </p>
           {!searchQuery && (
             <button
               onClick={() => onOpenNewPlant()}
-              className="mt-2 px-4 py-2 rounded-xl bg-emerald-600 text-emerald-950 font-bold text-xs hover:bg-emerald-500 cursor-pointer"
+              className="mt-2 px-4 py-2 rounded-xl bg-[#c2593f] text-white font-bold text-xs hover:bg-[#a2422a] transition-colors cursor-pointer"
             >
               Cadastrar Planta
             </button>

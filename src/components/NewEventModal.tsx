@@ -80,6 +80,7 @@ export const NewEventModal: React.FC<NewEventModalProps> = ({
 
           <button
             onClick={onClose}
+            aria-label="Fechar formulário de registro de cuidado"
             className="p-1.5 rounded-lg text-emerald-400 hover:text-white hover:bg-emerald-900/40 transition-colors"
           >
             <X className="w-5 h-5" />

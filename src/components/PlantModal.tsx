@@ -97,6 +97,7 @@ export const PlantModal: React.FC<PlantModalProps> = ({
 
           <button
             onClick={onClose}
+            aria-label="Fechar formulário da planta"
             className="p-1.5 rounded-lg text-emerald-400 hover:text-white hover:bg-emerald-900/40 transition-colors"
           >
             <X className="w-5 h-5" />

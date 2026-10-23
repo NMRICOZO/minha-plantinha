@@ -544,7 +544,7 @@ export const initialCannabisPlants: CannabisPlant[] = [
     target_rh: 48,
     training_techniques: ['LST', 'Topping', 'Desfolhação'],
     trichome_status: 'leitosos_ponto',
-    cover_photo_url: 'https://images.unsplash.com/photo-1536939459926-301728717817?auto=format&fit=crop&w=800&q=80',
+    cover_photo_url: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=800&q=80',
     notes: 'Semana 5 de floração. Densidade excelente dos cálices, aroma pungente terroso e de pinho. Temperatura do grow mantida em 24°C e umidade controlada em 48%.',
     created_at: '2026-07-20T10:00:00Z',
     updated_at: '2026-10-18T16:30:00Z'
@@ -568,7 +568,7 @@ export const initialCannabisPlants: CannabisPlant[] = [
     target_rh: 62,
     training_techniques: ['LST', 'ScrOG'],
     trichome_status: 'transparentes',
-    cover_photo_url: 'https://images.unsplash.com/photo-1568644396922-5c3bfae12521?auto=format&fit=crop&w=800&q=80',
+    cover_photo_url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
     notes: 'Estrutura vigorosa e entrenós bem abertos. Rede de ScrOG instalada a 30cm do vaso para maximizar canópea uniforme antes da virada para 12/12.',
     created_at: '2026-09-10T11:00:00Z',
     updated_at: '2026-10-19T14:00:00Z'
@@ -592,7 +592,7 @@ export const initialCannabisPlants: CannabisPlant[] = [
     target_rh: 55,
     training_techniques: ['LST Leve'],
     trichome_status: 'transparentes',
-    cover_photo_url: 'https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=800&q=80',
+    cover_photo_url: 'https://images.unsplash.com/photo-1604762524889-3e2fcc145683?auto=format&fit=crop&w=800&q=80',
     notes: 'Início da transição floral (pistilos brancos evidentes no topo). Planta compacta e resistente, sem podas apicais para não estressar a autoflorescente.',
     created_at: '2026-09-18T09:00:00Z',
     updated_at: '2026-10-20T11:00:00Z'
