@@ -25,6 +25,7 @@ import {
 } from '../data/initialData.ts';
 import { fetchOpenMeteoWeather } from '../services/weatherService.ts';
 import { evaluateWeatherAlerts } from '../utils/weatherRules.ts';
+import { storageService } from '../services/storageService.ts';
 
 export type CultivationMode = 'horta' | 'cannabis';
 
@@ -37,7 +38,9 @@ export type ActiveTab =
   | 'cannabis' 
   | 'calendario' 
   | 'insights' 
-  | 'biblioteca';
+  | 'biblioteca'
+  | 'ia_horta'
+  | 'ia_cannabis';
 
 interface AppContextType {
   activeTab: ActiveTab;
@@ -124,10 +127,13 @@ interface AppContextType {
   refreshWeather: () => Promise<void>;
   triggerTestAlert: () => void;
 
-  // Data management
+  // Data management & Sample Data control
   resetToDemoData: () => void;
   exportBackup: () => void;
   importBackup: (jsonContent: string) => boolean;
+  isUsingSampleData: boolean;
+  enableSampleData: () => void;
+  clearToEmptyData: () => void;
 
   // Notification Toast
   toastMessage: string | null;
@@ -177,20 +183,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }, 4000);
   }, []);
 
-  // Load state from localStorage or initial seed
+  // Sample Data mode control:
+  const [isUsingSampleData, setIsUsingSampleData] = useState<boolean>(() => {
+    const saved = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return saved === 'true';
+  });
+
+  // Load state from localStorage or empty (unless sample mode enabled)
   const [plants, setPlants] = useState<Plant[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.PLANTS);
-    return saved ? JSON.parse(saved) : initialPlants;
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const sampleMode = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return sampleMode === 'true' ? initialPlants : [];
   });
 
   const [diaryEntries, setDiaryEntries] = useState<DiaryEntry[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.DIARY);
-    return saved ? JSON.parse(saved) : initialDiaryEntries;
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const sampleMode = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return sampleMode === 'true' ? initialDiaryEntries : [];
   });
 
   const [plantEvents, setPlantEvents] = useState<PlantEvent[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.EVENTS);
-    return saved ? JSON.parse(saved) : initialPlantEvents;
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const sampleMode = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return sampleMode === 'true' ? initialPlantEvents : [];
   });
 
   const [tags, setTags] = useState<Tag[]>(() => {
@@ -211,13 +235,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Cannabis Cultivation State
   const [cannabisPlants, setCannabisPlants] = useState<CannabisPlant[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CANNABIS_PLANTS);
-    return saved ? JSON.parse(saved) : initialCannabisPlants;
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const sampleMode = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return sampleMode === 'true' ? initialCannabisPlants : [];
   });
 
   const [cannabisFeedLogs, setCannabisFeedLogs] = useState<CannabisFeedLog[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.CANNABIS_FEED);
-    return saved ? JSON.parse(saved) : initialCannabisFeedLogs;
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    const sampleMode = localStorage.getItem('minha_plantinha_is_sample_mode');
+    return sampleMode === 'true' ? initialCannabisFeedLogs : [];
   });
+
+  // Synchronize collections to IndexedDB and LocalStorage in the background
+  useEffect(() => {
+    storageService.saveAll('plants', plants, STORAGE_KEYS.PLANTS).catch(() => {});
+  }, [plants]);
+
+  useEffect(() => {
+    storageService.saveAll('diaryEntries', diaryEntries, STORAGE_KEYS.DIARY).catch(() => {});
+  }, [diaryEntries]);
+
+  useEffect(() => {
+    storageService.saveAll('plantEvents', plantEvents, STORAGE_KEYS.EVENTS).catch(() => {});
+  }, [plantEvents]);
+
+  useEffect(() => {
+    storageService.saveAll('tags', tags, STORAGE_KEYS.TAGS).catch(() => {});
+  }, [tags]);
+
+  useEffect(() => {
+    storageService.saveAll('cannabisPlants', cannabisPlants, STORAGE_KEYS.CANNABIS_PLANTS).catch(() => {});
+  }, [cannabisPlants]);
+
+  useEffect(() => {
+    storageService.saveAll('cannabisFeedLogs', cannabisFeedLogs, STORAGE_KEYS.CANNABIS_FEED).catch(() => {});
+  }, [cannabisFeedLogs]);
 
   // Onboarding Walkthrough & Setup Modal State
   const [isWelcomeOpen, setIsWelcomeOpen] = useState<boolean>(() => {
@@ -687,6 +744,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('Dados restaurados para o catálogo de exemplo!');
   }, [showToast]);
 
+  const enableSampleData = useCallback(() => {
+    setPlants(initialPlants);
+    setDiaryEntries(initialDiaryEntries);
+    setPlantEvents(initialPlantEvents);
+    setTags(initialTags);
+    setCannabisPlants(initialCannabisPlants);
+    setCannabisFeedLogs(initialCannabisFeedLogs);
+    setIsUsingSampleData(true);
+    localStorage.setItem('minha_plantinha_is_sample_mode', 'true');
+    storageService.seedSampleData().catch(() => {});
+    showToast('Modo de Exemplo ativado! 6 plantas e histórico de fotos carregados.');
+  }, [showToast]);
+
+  const clearToEmptyData = useCallback(() => {
+    setPlants([]);
+    setDiaryEntries([]);
+    setPlantEvents([]);
+    setCannabisPlants([]);
+    setCannabisFeedLogs([]);
+    setIsUsingSampleData(false);
+    localStorage.setItem('minha_plantinha_is_sample_mode', 'false');
+    storageService.clearAllData().catch(() => {});
+    showToast('Catálogo limpo. Comece cadastrando suas próprias plantas!');
+  }, [showToast]);
+
   // Export JSON
   const exportBackup = useCallback(() => {
     const backupData = {
@@ -794,6 +876,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         resetToDemoData,
         exportBackup,
         importBackup,
+        isUsingSampleData,
+        enableSampleData,
+        clearToEmptyData,
         toastMessage,
         showToast,
       }}

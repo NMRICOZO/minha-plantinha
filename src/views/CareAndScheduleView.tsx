@@ -135,11 +135,10 @@ export const CareAndScheduleView: React.FC<CareAndScheduleViewProps> = ({
   onOpenNewDiary,
   initialSubTab = 'agenda'
 }) => {
-  const { plants } = useApp();
+  const { plants, setActiveTab } = useApp();
   const [activeSubTab, setActiveSubTab] = useState<'agenda' | 'pragas' | 'biblioteca' | 'metricas'>(initialSubTab);
   const [pestSearch, setPestSearch] = useState('');
   const [selectedPest, setSelectedPest] = useState<PestGuideItem | null>(null);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   const filteredPests = useMemo(() => {
     if (!pestSearch.trim()) return COMMON_PESTS;
@@ -247,10 +246,10 @@ export const CareAndScheduleView: React.FC<CareAndScheduleViewProps> = ({
       {activeSubTab === 'pragas' && (
         <div className="space-y-6">
           
-          {/* AI Horta Placeholder Banner */}
+          {/* AI Horta Real Assistant Banner */}
           <div className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-500 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
@@ -258,21 +257,22 @@ export const CareAndScheduleView: React.FC<CareAndScheduleViewProps> = ({
                   <span className="font-bold text-sm text-[var(--text-primary)] font-serif">
                     IA Horta • Diagnóstico Visual de Folhas
                   </span>
-                  <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    Em breve
+                  <span className="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Real • Gemini
                   </span>
                 </div>
                 <p className="text-xs text-[var(--text-muted)] mt-1 max-w-xl">
-                  Identificação fotográfica de manchas, clorose e infestações por visão computacional, sugerindo dosagens orgânicas personalizadas.
+                  Análise fitopatológica de manchas, clorose e pragas com recomendações práticas e dosagens orgânicas personalizadas.
                 </p>
               </div>
             </div>
 
             <button
-              onClick={() => setIsAiModalOpen(true)}
-              className="min-h-[44px] px-4 py-2 rounded-xl bg-[var(--bg-primary)] hover:bg-[var(--border-subtle)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-semibold shrink-0 cursor-pointer transition-colors"
+              onClick={() => setActiveTab('ia_horta')}
+              className="min-h-[44px] px-4 py-2 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] text-xs font-semibold shrink-0 cursor-pointer transition-transform active:scale-95 shadow-sm flex items-center gap-2"
             >
-              Conhecer Funcionalidade
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Abrir IA Horta</span>
             </button>
           </div>
 
@@ -382,47 +382,8 @@ export const CareAndScheduleView: React.FC<CareAndScheduleViewProps> = ({
         <InsightsView />
       )}
 
-      {/* Modal: IA Horta Informative (Simulado / Em Breve) */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-2xl p-6 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-bold text-base text-[var(--text-primary)] font-serif">
-                  IA Horta & Diagnóstico Foliar
-                </h3>
-                <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
-                  RECURSO SIMULADO • EM DESENVOLVIMENTO
-                </span>
-              </div>
-            </div>
-
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-              O módulo de inteligência artificial botânica permitirá fotografar folhas com manchas, necrose ou pragas para obter diagnóstico imediato, classificação taxonômica e plano de recuperação fitossanitária com insumos orgânicos.
-            </p>
-
-            <div className="p-3.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-xs space-y-2">
-              <span className="font-bold text-[var(--text-primary)] block">Capacidades planejadas:</span>
-              <ul className="space-y-1 text-[11px] text-[var(--text-muted)]">
-                <li>• Reconhecimento de deficiência de N-P-K e micronutrientes</li>
-                <li>• Estimativa de infestação por área foliar atacada</li>
-                <li>• Ajuste preditivo de regas conforme previsão de ondas de calor</li>
-              </ul>
-            </div>
-
-            <button
-              onClick={() => setIsAiModalOpen(false)}
-              className="w-full min-h-[44px] py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-xs cursor-pointer"
-            >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 };
+
+export default CareAndScheduleView;

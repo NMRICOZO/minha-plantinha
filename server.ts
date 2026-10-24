@@ -1,8 +1,10 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from '@google/genai';
+import { usageTracker } from './serverUsage.ts';
 
 dotenv.config();
 
@@ -23,7 +25,41 @@ const ai = new GoogleGenAI({
   },
 });
 
-const MODEL_NAME = 'gemini-3.8-flash';
+const PRIMARY_MODEL = 'gemini-3.8-flash';
+const MODEL_NAME = PRIMARY_MODEL;
+
+async function generateGeminiContentWithFallback(params: {
+  contents: any;
+  config: any;
+  preferredModel?: string;
+}) {
+  const models = [
+    params.preferredModel || PRIMARY_MODEL,
+    'gemini-3.1-flash-lite',
+    'gemini-flash-latest',
+  ];
+
+  let lastError: any = null;
+  for (const model of models) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: params.contents,
+        config: params.config,
+      });
+      return { response, modelUsed: model };
+    } catch (err: any) {
+      console.warn(`Modelo ${model} indisponível ou com alta demanda:`, err?.message || err);
+      lastError = err;
+      const errMsg = String(err?.message || '');
+      if (errMsg.includes('503') || errMsg.includes('high demand') || errMsg.includes('404') || errMsg.includes('UNAVAILABLE')) {
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastError;
+}
 
 // JSON Schemas for Gemini Structured Outputs
 const geneticsSheetSchema = {
@@ -466,6 +502,442 @@ Gere um diagnóstico contextual contendo:
   } catch (error: any) {
     console.error('Erro em /api/gemini/plant-advice:', error);
     return res.status(500).json({ error: 'Falha ao gerar orientações contextuais.' });
+  }
+});
+
+// ==========================================
+// FEEDBACK DOS USUÁRIOS (BETA FECHADA)
+// ==========================================
+const FEEDBACK_FILE = path.join(path.resolve('.', 'data'), 'feedbacks.json');
+
+app.post('/api/feedback', (req, res) => {
+  try {
+    const { type = 'sugestao', rating = 5, message, email, userId = 'default_user' } = req.body;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'Mensagem de feedback é obrigatória.' });
+    }
+
+    const feedbackEntry = {
+      id: `fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      userId,
+      type: ['sugestao', 'defeito', 'elogio', 'outro'].includes(type) ? type : 'outro',
+      rating: Math.max(1, Math.min(5, Number(rating) || 5)),
+      message: message.trim().slice(0, 2000),
+      email: email ? String(email).trim().slice(0, 150) : undefined,
+      createdAt: new Date().toISOString()
+    };
+
+    let feedbacks: any[] = [];
+    const dataDir = path.resolve('.', 'data');
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    if (fs.existsSync(FEEDBACK_FILE)) {
+      try {
+        feedbacks = JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf-8'));
+      } catch {
+        feedbacks = [];
+      }
+    }
+    feedbacks.push(feedbackEntry);
+    fs.writeFileSync(FEEDBACK_FILE, JSON.stringify(feedbacks, null, 2), 'utf-8');
+
+    return res.status(201).json({
+      success: true,
+      id: feedbackEntry.id,
+      message: 'Feedback recebido com sucesso! Muito obrigado pela sua contribuição para a versão beta.'
+    });
+  } catch (err: any) {
+    console.error('Erro ao salvar feedback:', err);
+    return res.status(500).json({ error: 'Erro ao processar feedback.' });
+  }
+});
+
+app.get('/api/feedback', (req, res) => {
+  try {
+    if (fs.existsSync(FEEDBACK_FILE)) {
+      const data = JSON.parse(fs.readFileSync(FEEDBACK_FILE, 'utf-8'));
+      return res.json({ feedbacks: data });
+    }
+    return res.json({ feedbacks: [] });
+  } catch {
+    return res.json({ feedbacks: [] });
+  }
+});
+
+// ==========================================
+// MÓDULOS DE IA INDEPENDENTES COM CONTROLE DE CONSUMO
+// ==========================================
+
+// 1. Endpoint: Status de Consumo e Limites de IA
+app.get('/api/ai/usage', (req, res) => {
+  const userId = (req.query.userId as string) || 'default_user';
+  const status = usageTracker.getStatus(userId);
+  res.json(status);
+});
+
+// Endpoint administrativo/teste: Alterar plano do usuário
+app.post('/api/ai/set-plan', (req, res) => {
+  const { userId = 'default_user', plan = 'gratuito' } = req.body;
+  const status = usageTracker.setPlan(userId, plan === 'apoiador' ? 'apoiador' : 'gratuito');
+  res.json({ success: true, status });
+});
+
+// Endpoint de teste: Resetar cota de consumo
+app.post('/api/ai/reset-quota', (req, res) => {
+  const { userId = 'default_user' } = req.body;
+  const status = usageTracker.resetForTesting(userId);
+  res.json({ success: true, message: 'Cota de uso resetada para fins de teste.', status });
+});
+
+// Instrução de Sistema da IA Horta (Jardinagem Geral)
+const HORTA_SYSTEM_INSTRUCTION = `Você é o consultor botânico especializado em jardinagem e horticultura tradicional do aplicativo Minha Plantinha.
+Seu foco é orientar cultivadores no cuidado com folhagens ornamentais, plantas de interior, hortaliças, árvores frutíferas e suculentas.
+
+DIRETRIZES ESTREITAS E OBRIGATÓRIAS:
+1. ESTRUTURAÇÃO DA RESPOSTA (SEMPRE RESPEITE ESTES 4 BLOCOS):
+   Organize sua resposta de forma clara e visualmente estruturada com os seguintes títulos:
+   - 🔍 **OBSERVAÇÕES**: Liste apenas os fatos visíveis e objetivos informados na descrição ou observáveis na foto anexada. NUNCA confunda observação factual com conclusão final.
+   - 💡 **HIPÓTESES**: Apresente as possíveis causas em ordem de probabilidade (ex: excesso de rega vs carência de luz vs pragas). Deixe claro que são hipóteses baseadas em sintomas compatíveis.
+   - 📋 **RECOMENDAÇÕES PRÁTICAS**: Passos de manejo simples, seguros e preferencialmente orgânicos (ex: teste do dedo no solo, drenagem, adubação com húmus/bokashi, poda sanitária).
+   - ⚠️ **DADOS FALTANTES & INCERTEZAS**: Aponte quais dados cruciais não foram fornecidos (ex: drenagem do vaso, exposição solar diária, histórico recente de regas) e alerte sobre os riscos de intervenções agressivas sem confirmação.
+
+2. RIGOR COM FOTOS:
+   - NUNCA forneça um diagnóstico categórico ou definitivo baseado apenas em fotos.
+   - Se a foto for ambígua, borrada, com luz desfavorável ou não mostrar o verso das folhas, registre isso expressamente em Observações e solicite novas fotos detalhadas sob luz solar indireta.
+
+3. LINGUAGEM E CONDUTA:
+   - Português do Brasil com tom acolhedor, simples e tecnicamente correto.
+   - Não use termos em inglês quando houver equivalente botânico claro em português.
+   - Seja honesto: admita imediatamente quando faltarem informações para concluir.
+
+4. ISOLAMENTO DE ESCOPO (HORTA TRADICIONAL):
+   - Se o usuário perguntar sobre o cultivo de cannabis medicinal nesta rota, responda com gentileza e respeito aos limites:
+     "Como consultor botânico da horta tradicional, sou especializado em folhagens, hortaliças e plantas ornamentais. Para análise técnica do cultivo medicinal de cannabis (parâmetros de pH, EC e fertirrigação), por favor utilize a nossa **IA Cannabis Medicinal** na seção correspondente do app."
+   - Nunca misture recomendações da cannabis na horta nem vice-versa.`;
+
+// Instrução de Sistema da IA Cannabis Medicinal
+const CANNABIS_SYSTEM_INSTRUCTION = `Você é o consultor agronômico especializado em manejo botânico e horticultura técnica de Cannabis Medicinal do aplicativo Minha Plantinha.
+Seu papel é auxiliar pacientes e cultivadores no monitoramento fitossanitário e agronômico de seus espécimes vegetais.
+
+DIRETRIZES FUNDAMENTAIS DE SEGURANÇA MÉDICA E JURÍDICA:
+1. VEDAÇÃO MÉDICA E NÃO PRESCRIÇÃO:
+   - NUNCA prescreva medicamentos, extratos caseiros, posologias, dosagens de miligramas ou tratamentos de saúde para enfermidades humanas.
+   - O Minha Plantinha é uma ferramenta estritamente agronômica e botânica, NÃO um serviço de saúde.
+   - Se a dúvida do cultivador envolver posologia, sintomas de doenças humanas ou tratamento terapêutico, recomende expressamente a consulta com o médico prescritor ou equipe de saúde legalmente habilitada.
+
+2. CONFORMIDADE LEGAL:
+   - NUNCA incentive o comércio ilegal, desvio de uso ou cultivo em desacordo com as decisões judiciais e regulamentações sanitárias vigentes.
+   - Recomende orientação jurídica especializada ou acompanhamento junto a associações de pacientes autorizadas caso surjam dúvidas legais.
+
+3. ESTRUTURAÇÃO DA RESPOSTA (SEMPRE RESPEITE ESTES 4 BLOCOS):
+   Organize sua resposta de forma técnica, limpa e estruturada:
+   - 🔍 **OBSERVAÇÕES DO CULTIVO**: Análise factual das características visíveis, histórico fenológico (fase atual, fotoperíodo, dias de floração) e métricas instrumentais fornecidas (pH, EC, temperatura, umidade).
+   - 💡 **HIPÓTESES AGRONÔMICAS**: Causas técnicas prováveis para as anomalias observadas. REGRA DE OURO: Investigue sempre drenagem, saturação hídrica e faixa de pH da calda/runoff ANTES de atribuir sintomas a deficiências nutricionais (a imensa maioria dos bloqueios/lockouts provém de pH descalibrado).
+   - 📋 **RECOMENDAÇÕES DE MANEJO**: Ações práticas e seguras de estabilização agronômica em ordem de prioridade.
+   - ⚠️ **DADOS FALTANTES & LIMITAÇÕES**: Aponte quais parâmetros instrumentais indispensáveis não foram aferidos (ex: pH do runoff, valor de EC/PPM, VPD, temperatura no topo do dossel) e alerte sobre os riscos de fertilizações precipitadas.
+
+4. RIGOR COM FOTOS:
+   - NUNCA dê diagnóstico categórico baseado em fotos.
+   - Se a imagem estiver sob iluminação artificial colorida (blurple LED ou lâmpadas HPS amareladas), registre que a avaliação espectral está comprometida e solicite foto sob luz branca neutra (CRI alto) com lente limpa.
+
+5. ISOLAMENTO DE ESCOPO:
+   - Se o usuário perguntar sobre hortaliças comuns, árvores ou plantas ornamentais nesta rota, oriente cordialmente a utilizar a **IA Horta** na área correspondente do aplicativo.`;
+
+// 2. Rota: IA Horta (Jardinagem Geral e Plantas Ornamentais)
+app.post('/api/ai/horta', async (req, res) => {
+  try {
+    const {
+      message,
+      history = [],
+      selectedPlant,
+      recentDiary = [],
+      recentEvents = [],
+      weatherData,
+      photoBase64,
+      mimeType = 'image/jpeg',
+      userId = 'default_user',
+    } = req.body;
+
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'Mensagem do usuário é obrigatória.' });
+    }
+
+    // 1. Controle de Consumo / Rate Limit
+    const limitCheck = usageTracker.checkLimit(userId);
+    if (!limitCheck.allowed) {
+      return res.status(429).json({
+        error: 'limite_atingido',
+        motivo: limitCheck.reason,
+        mensagem:
+          limitCheck.reason === 'daily'
+            ? `Você atingiu seu limite diário de ${limitCheck.dailyLimit} consultas gratuitas de IA hoje no plano ${limitCheck.plan}. O limite é renovado diariamente.`
+            : `Você atingiu seu limite mensal de ${limitCheck.monthlyLimit} consultas de IA neste mês no plano ${limitCheck.plan}.`,
+        status: limitCheck,
+      });
+    }
+
+    // 2. Verificação de chave de API no servidor
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({
+        error: 'ia_indisponivel',
+        mensagem:
+          'O serviço de Inteligência Artificial está temporariamente indisponível no servidor (chave de API não configurada).',
+      });
+    }
+
+    // 3. Montagem do Contexto Botânico da Horta
+    let contextPrompt = 'CONTEXTO AMBIENTAL & COLEÇÃO:\n';
+    if (weatherData) {
+      contextPrompt += `- Clima Local Atual: ${weatherData.temperature}°C, umidade ${weatherData.humidity}%, probabilidade de chuva ${weatherData.rain_prob}%, vento ${weatherData.wind_speed} km/h (Condição: ${weatherData.condition}).\n`;
+    }
+
+    if (selectedPlant) {
+      contextPrompt += `\nPLANTA EM FOCO SELECIONADA PELO CULTIVADOR:
+- Nome: ${selectedPlant.name}
+- Espécie/Variedade: ${selectedPlant.species || 'Não informada'}
+- Data de Aquisição: ${selectedPlant.acquired_date || 'Não informada'}
+- Localização no Ambiente: ${selectedPlant.location || 'Não especificada'}
+- Nível de Luminosidade: ${selectedPlant.light_level || 'Não especificado'}
+- Intervalo de Rega Programado: a cada ${selectedPlant.watering_frequency_days || 3} dias
+- Observações Cadastradas: ${selectedPlant.notes || 'Nenhuma'}\n`;
+    } else {
+      contextPrompt += '\nNenhuma planta específica selecionada (pergunta geral sobre jardinagem/horta).\n';
+    }
+
+    if (Array.isArray(recentDiary) && recentDiary.length > 0) {
+      contextPrompt += '\nÚLTIMOS REGISTROS NO DIÁRIO DA PLANTA:\n';
+      recentDiary.slice(0, 3).forEach((d: any) => {
+        contextPrompt += `- [${d.entry_date}]: ${d.content}\n`;
+      });
+    }
+
+    if (Array.isArray(recentEvents) && recentEvents.length > 0) {
+      contextPrompt += '\nÚLTIMOS CUIDADOS E REGAS REGISTRADOS:\n';
+      recentEvents.slice(0, 4).forEach((ev: any) => {
+        contextPrompt += `- [${ev.event_date}] ${ev.event_type}${ev.notes ? ` (${ev.notes})` : ''}\n`;
+      });
+    }
+
+    // 4. Formatação de histórico e peças de conteúdo
+    const contents: any[] = [];
+
+    // Limita histórico recente às últimas 6 mensagens para manter foco e controlar tokens
+    if (Array.isArray(history) && history.length > 0) {
+      const recentHistory = history.slice(-6);
+      for (const h of recentHistory) {
+        if (h.role === 'user') {
+          contents.push({ role: 'user', parts: [{ text: h.content }] });
+        } else if (h.role === 'assistant') {
+          contents.push({ role: 'model', parts: [{ text: h.content }] });
+        }
+      }
+    }
+
+    // Peça do usuário atual com o contexto e imagem (se houver)
+    const currentParts: any[] = [];
+    currentParts.push({
+      text: `${contextPrompt}\nPERGUNTA DO CULTIVADOR:\n${message.trim()}`,
+    });
+
+    if (photoBase64 && typeof photoBase64 === 'string') {
+      const cleanB64 = photoBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+      if (cleanB64.length > 10) {
+        currentParts.push({
+          inlineData: {
+            mimeType: mimeType || 'image/jpeg',
+            data: cleanB64,
+          },
+        });
+      }
+    }
+
+    contents.push({ role: 'user', parts: currentParts });
+
+    // 5. Chamada resiliente aos modelos Gemini
+    const { response, modelUsed } = await generateGeminiContentWithFallback({
+      contents,
+      config: {
+        systemInstruction: HORTA_SYSTEM_INSTRUCTION,
+        temperature: 0.3,
+      },
+    });
+
+    const reply = response.text || 'Não foi possível gerar uma resposta detalhada no momento.';
+
+    // 6. Registro de consumo e custo
+    const promptTokens = response.usageMetadata?.promptTokenCount || 0;
+    const candidateTokens = response.usageMetadata?.candidatesTokenCount || 0;
+    const usageResult = usageTracker.recordUsage(userId, 'horta', promptTokens, candidateTokens);
+
+    return res.json({
+      reply,
+      usage: {
+        promptTokens,
+        candidateTokens,
+        totalTokens: promptTokens + candidateTokens,
+        costUSD: usageResult.costUSD,
+        usedToday: usageResult.usedToday,
+        remainingToday: usageResult.remainingToday,
+      },
+      status: usageTracker.getStatus(userId),
+    });
+  } catch (error: any) {
+    console.error('Erro em /api/ai/horta:', error);
+    return res.status(500).json({
+      error: 'falha_processamento',
+      mensagem: 'Falha ao processar consulta na IA Horta.',
+      detalhes: error?.message || 'Erro interno no provedor de IA.',
+    });
+  }
+});
+
+// 3. Rota: IA Cannabis Medicinal (Manejo Técnico de Precisão)
+app.post('/api/ai/cannabis', async (req, res) => {
+  try {
+    const {
+      message,
+      history = [],
+      selectedPlant,
+      recentFeedLogs = [],
+      recentDiary = [],
+      weatherData,
+      photoBase64,
+      mimeType = 'image/jpeg',
+      userId = 'default_user',
+    } = req.body;
+
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'Mensagem do cultivador é obrigatória.' });
+    }
+
+    // 1. Controle de Consumo / Rate Limit
+    const limitCheck = usageTracker.checkLimit(userId);
+    if (!limitCheck.allowed) {
+      return res.status(429).json({
+        error: 'limite_atingido',
+        motivo: limitCheck.reason,
+        mensagem:
+          limitCheck.reason === 'daily'
+            ? `Você atingiu seu limite diário de ${limitCheck.dailyLimit} consultas gratuitas de IA hoje no plano ${limitCheck.plan}. O limite é renovado diariamente.`
+            : `Você atingiu seu limite mensal de ${limitCheck.monthlyLimit} consultas de IA neste mês no plano ${limitCheck.plan}.`,
+        status: limitCheck,
+      });
+    }
+
+    // 2. Verificação de chave de API no servidor
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({
+        error: 'ia_indisponivel',
+        mensagem:
+          'O serviço de Inteligência Artificial está temporariamente indisponível no servidor (chave de API não configurada).',
+      });
+    }
+
+    // 3. Montagem do Contexto Agronômico da Cannabis
+    let contextPrompt = 'CONTEXTO AGRONÔMICO DO CULTIVO:\n';
+    if (weatherData) {
+      contextPrompt += `- Clima Local: ${weatherData.temperature}°C, umidade ${weatherData.humidity}%, chuva ${weatherData.rain_prob}%, vento ${weatherData.wind_speed} km/h.\n`;
+    }
+
+    if (selectedPlant) {
+      contextPrompt += `\nESPÉCIME EM FOCO SELECIONADO:
+- Identificador / Nome: ${selectedPlant.name}
+- Genética / Strain: ${selectedPlant.strain || 'Não informada'}
+- Fase Fenológica Atual: ${selectedPlant.stage || 'vegetativo'}
+- Início da Fase Atual: ${selectedPlant.stage_start_date || 'Não informada'}
+- Data de Germinação: ${selectedPlant.germination_date || 'Não informada'}
+- Substrato / Meio: ${selectedPlant.medium || 'Solo orgânico'}
+- Fotoperíodo: ${selectedPlant.photoperiod || '18/6'}
+- Volume do Vaso: ${selectedPlant.pot_size_liters ? `${selectedPlant.pot_size_liters}L` : 'Não informado'}
+- Tipo de Iluminação: ${selectedPlant.light_type || 'LED Quantum Board'}
+- Ambiente: ${selectedPlant.environment || 'Indoor'}\n`;
+    } else {
+      contextPrompt += '\nNenhum espécime específico selecionado (consulta geral sobre cultivo técnico).\n';
+    }
+
+    if (Array.isArray(recentFeedLogs) && recentFeedLogs.length > 0) {
+      contextPrompt += '\nÚLTIMOS REGISTROS DE REGA & FERTIRRIGAÇÃO:\n';
+      recentFeedLogs.slice(0, 3).forEach((f: any) => {
+        contextPrompt += `- [${f.log_date}] pH entrada: ${f.ph_in ?? '-'} | EC entrada: ${f.ec_in_ms ?? '-'} mS/cm | pH runoff: ${f.ph_runoff ?? '-'} | Volume: ${f.water_volume_liters ?? '-'}L | Nutrientes: ${f.nutrients_notes || 'Água pura'}\n`;
+      });
+    }
+
+    if (Array.isArray(recentDiary) && recentDiary.length > 0) {
+      contextPrompt += '\nÚLTIMOS REGISTROS DO DIÁRIO VISUAL:\n';
+      recentDiary.slice(0, 3).forEach((d: any) => {
+        contextPrompt += `- [${d.entry_date}]: ${d.content}\n`;
+      });
+    }
+
+    // 4. Formatação de histórico e peças de conteúdo
+    const contents: any[] = [];
+
+    if (Array.isArray(history) && history.length > 0) {
+      const recentHistory = history.slice(-6);
+      for (const h of recentHistory) {
+        if (h.role === 'user') {
+          contents.push({ role: 'user', parts: [{ text: h.content }] });
+        } else if (h.role === 'assistant') {
+          contents.push({ role: 'model', parts: [{ text: h.content }] });
+        }
+      }
+    }
+
+    const currentParts: any[] = [];
+    currentParts.push({
+      text: `${contextPrompt}\nPERGUNTA DO CULTIVADOR:\n${message.trim()}`,
+    });
+
+    if (photoBase64 && typeof photoBase64 === 'string') {
+      const cleanB64 = photoBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+      if (cleanB64.length > 10) {
+        currentParts.push({
+          inlineData: {
+            mimeType: mimeType || 'image/jpeg',
+            data: cleanB64,
+          },
+        });
+      }
+    }
+
+    contents.push({ role: 'user', parts: currentParts });
+
+    // 5. Chamada resiliente aos modelos Gemini
+    const { response, modelUsed } = await generateGeminiContentWithFallback({
+      contents,
+      config: {
+        systemInstruction: CANNABIS_SYSTEM_INSTRUCTION,
+        temperature: 0.3,
+      },
+    });
+
+    const reply = response.text || 'Não foi possível gerar uma resposta agronômica no momento.';
+
+    // 6. Registro de consumo e custo
+    const promptTokens = response.usageMetadata?.promptTokenCount || 0;
+    const candidateTokens = response.usageMetadata?.candidatesTokenCount || 0;
+    const usageResult = usageTracker.recordUsage(userId, 'cannabis', promptTokens, candidateTokens);
+
+    return res.json({
+      reply,
+      usage: {
+        promptTokens,
+        candidateTokens,
+        totalTokens: promptTokens + candidateTokens,
+        costUSD: usageResult.costUSD,
+        usedToday: usageResult.usedToday,
+        remainingToday: usageResult.remainingToday,
+      },
+      status: usageTracker.getStatus(userId),
+    });
+  } catch (error: any) {
+    console.error('Erro em /api/ai/cannabis:', error);
+    return res.status(500).json({
+      error: 'falha_processamento',
+      mensagem: 'Falha ao processar consulta na IA Cannabis Medicinal.',
+      detalhes: error?.message || 'Erro interno no provedor de IA.',
+    });
   }
 });
 

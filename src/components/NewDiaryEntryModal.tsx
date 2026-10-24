@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext.tsx';
-import { X, Upload, Plus, Tag as TagIcon, Check, BookOpen } from 'lucide-react';
+import { X, Upload, Plus, Tag as TagIcon, Check, BookOpen, Loader2 } from 'lucide-react';
+import { compressImage } from '../utils/imageCompressor.ts';
 
 interface NewDiaryEntryModalProps {
   isOpen: boolean;
@@ -36,19 +37,27 @@ export const NewDiaryEntryModal: React.FC<NewDiaryEntryModalProps> = ({
   const [selectedTagNames, setSelectedTagNames] = useState<string[]>(['nova_folha']);
   const [customTagInput, setCustomTagInput] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setSelectedPhotoUrls(prev => [{ storage_path: reader.result as string, caption: 'Nova foto' }, ...prev]);
-        }
-      };
-      reader.readAsDataURL(file);
+      if (!file.type.startsWith('image/')) {
+        setError('Por favor, selecione um arquivo de imagem válido (PNG, JPG, WebP).');
+        return;
+      }
+      try {
+        setIsCompressing(true);
+        setError(null);
+        const { dataUrl } = await compressImage(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.82 });
+        setSelectedPhotoUrls(prev => [{ storage_path: dataUrl, caption: 'Nova foto' }, ...prev]);
+      } catch (err: any) {
+        setError(err.message || 'Erro ao processar imagem.');
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 

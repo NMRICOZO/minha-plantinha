@@ -19,7 +19,12 @@ interface NavItem {
   badge?: number;
 }
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  onOpenFeedback?: () => void;
+  onOpenLegal?: (doc: 'termos' | 'privacidade' | 'cannabis_aviso') => void;
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ onOpenFeedback, onOpenLegal }) => {
   const { 
     activeTab, 
     setActiveTab, 
@@ -156,34 +161,62 @@ export const Navigation: React.FC = () => {
             })}
           </nav>
 
-          {/* AI Entry Point Reserved Card (Simulado / Em breve) */}
+          {/* AI Entry Point Card (Real Gemini Assistant) */}
           <div className="pt-2">
             <button
-              onClick={() => setIsAiModalOpen(true)}
-              className="w-full min-h-[44px] p-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-left transition-all cursor-pointer group space-y-1 shadow-sm"
+              onClick={() => setActiveTab(cultivationMode === 'cannabis' ? 'ia_cannabis' : 'ia_horta')}
+              className={`w-full min-h-[44px] p-3 rounded-2xl border text-left transition-all cursor-pointer group space-y-1 shadow-sm ${
+                (activeTab === 'ia_horta' || activeTab === 'ia_cannabis')
+                  ? 'bg-[var(--bg-surface)] border-[var(--border-strong)] ring-1 ring-[var(--accent-primary)]/40'
+                  : 'bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
+              }`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 font-serif">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 group-hover:rotate-12 transition-transform" />
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 group-hover:rotate-12 transition-transform" />
                   <span>{cultivationMode === 'cannabis' ? 'IA Cannabis' : 'IA Horta'}</span>
                 </span>
-                <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  Em breve
+                <span className="text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Real • Gemini
                 </span>
               </div>
               <p className="text-[10px] text-[var(--text-muted)] leading-relaxed">
                 {cultivationMode === 'cannabis' 
-                  ? 'Consultoria fitotécnica de fotoperíodo, VPD e tricomas.'
-                  : 'Diagnóstico visual por imagem e plano de adubação orgânica.'}
+                  ? 'Consultoria agronômica técnica e conformidade legal.'
+                  : 'Diagnóstico botânico, sintomas e cuidados orgânicos.'}
               </p>
             </button>
           </div>
         </div>
 
-        {/* Sidebar Footer Walkthrough card */}
-        <div className="space-y-2 pt-4 border-t border-[var(--border-subtle)]">
-          <div className="px-3 py-1 text-[10px] text-[var(--text-muted)] text-center font-mono">
-            Minha Plantinha • v1.1 Alfa
+        {/* Sidebar Footer with Beta & Legal Links */}
+        <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
+          <div className="flex items-center justify-center gap-2 text-[10px] text-[var(--text-muted)] font-mono flex-wrap">
+            <span>v1.2 Beta Fechada</span>
+            {onOpenFeedback && (
+              <>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={onOpenFeedback}
+                  className="hover:text-[var(--accent-primary)] hover:underline cursor-pointer min-h-[30px] flex items-center"
+                >
+                  Feedback
+                </button>
+              </>
+            )}
+            {onOpenLegal && (
+              <>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => onOpenLegal('termos')}
+                  className="hover:text-[var(--accent-primary)] hover:underline cursor-pointer min-h-[30px] flex items-center"
+                >
+                  Termos & Legal
+                </button>
+              </>
+            )}
           </div>
         </div>
       </aside>

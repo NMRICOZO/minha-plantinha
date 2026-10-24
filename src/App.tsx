@@ -16,12 +16,17 @@ const InsightsView = lazy(() => import('./views/InsightsView.tsx').then(m => ({ 
 const LibraryView = lazy(() => import('./views/LibraryView.tsx').then(m => ({ default: m.LibraryView })));
 const SettingsView = lazy(() => import('./views/SettingsView.tsx').then(m => ({ default: m.SettingsView })));
 const DesignPreviewView = lazy(() => import('./views/DesignPreviewView.tsx').then(m => ({ default: m.DesignPreviewView })));
+const IaHortaView = lazy(() => import('./views/IaHortaView.tsx').then(m => ({ default: m.IaHortaView })));
+const IaCannabisView = lazy(() => import('./views/IaCannabisView.tsx').then(m => ({ default: m.IaCannabisView })));
+import { CareAndScheduleView } from './views/CareAndScheduleView.tsx';
 
 const WelcomeWalkthroughModal = lazy(() => import('./components/WelcomeWalkthroughModal.tsx').then(m => ({ default: m.WelcomeWalkthroughModal })));
 const PlantModal = lazy(() => import('./components/PlantModal.tsx').then(m => ({ default: m.PlantModal })));
 const NewDiaryEntryModal = lazy(() => import('./components/NewDiaryEntryModal.tsx').then(m => ({ default: m.NewDiaryEntryModal })));
 const NewEventModal = lazy(() => import('./components/NewEventModal.tsx').then(m => ({ default: m.NewEventModal })));
 const PhotoLightbox = lazy(() => import('./components/PhotoLightbox.tsx').then(m => ({ default: m.PhotoLightbox })));
+const LegalModal = lazy(() => import('./components/LegalModal.tsx').then(m => ({ default: m.LegalModal })));
+const FeedbackModal = lazy(() => import('./components/FeedbackModal.tsx').then(m => ({ default: m.FeedbackModal })));
 
 // Lightweight transition skeleton for secondary views
 const TabLoadingSkeleton = () => (
@@ -39,6 +44,8 @@ const TabLoadingSkeleton = () => (
 function MainApp() {
   const { 
     activeTab, 
+    setActiveTab,
+    cultivationMode,
     setSelectedPlantId, 
     openComparison, 
     addPlant, 
@@ -50,6 +57,10 @@ function MainApp() {
     isWelcomeOpen,
     setIsWelcomeOpen
   } = useApp();
+
+  if (typeof window !== 'undefined') {
+    (window as any).__ACTIVE_TAB__ = activeTab;
+  }
 
   // Modal states
   const [isPlantModalOpen, setIsPlantModalOpen] = useState(false);
@@ -68,6 +79,11 @@ function MainApp() {
     caption?: string;
     plantName?: string;
   }>({ url: null });
+
+  // Legal and Feedback Modals (Beta Fechada)
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalDocType, setLegalDocType] = useState<'termos' | 'privacidade' | 'cannabis_aviso'>('termos');
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   const handleOpenNewPlant = (plantToEdit?: Plant) => {
     setEditingPlant(plantToEdit || null);
@@ -99,8 +115,8 @@ function MainApp() {
 
   return (
     <div 
-      data-theme={activeTab === 'cannabis' ? 'cannabis' : 'horta'} 
-      data-tema={activeTab === 'cannabis' ? 'cannabis' : 'horta'}
+      data-theme={cultivationMode === 'cannabis' || activeTab === 'cannabis' ? 'cannabis' : 'horta'} 
+      data-tema={cultivationMode === 'cannabis' || activeTab === 'cannabis' ? 'cannabis' : 'horta'}
       className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col transition-colors duration-200"
     >
       {/* Header */}
@@ -116,7 +132,15 @@ function MainApp() {
       {/* Main Workspace */}
       <div className="flex-1 flex max-w-7xl mx-auto w-full">
         {/* Navigation Sidebar (Desktop) and Bottom Bar (Mobile) */}
-        {!isDesignPreviewOpen && <Navigation />}
+        {!isDesignPreviewOpen && (
+          <Navigation 
+            onOpenFeedback={() => setIsFeedbackModalOpen(true)}
+            onOpenLegal={(doc) => {
+              setLegalDocType(doc);
+              setIsLegalModalOpen(true);
+            }}
+          />
+        )}
 
         {/* Content Area with Code-Splitting Suspense */}
         <main className="flex-1 px-4 sm:px-6 py-6 pb-24 lg:pb-12 overflow-y-auto">
@@ -138,12 +162,18 @@ function MainApp() {
 
               {activeTab === 'plantas' && (
                 <Suspense fallback={<TabLoadingSkeleton />}>
-                  <PlantsView
-                    onOpenNewPlant={handleOpenNewPlant}
-                    onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
-                    onOpenNewEvent={(plantId) => handleOpenNewEvent(plantId)}
-                    onSelectPhoto={handleSelectPhoto}
-                  />
+                  {cultivationMode === 'cannabis' ? (
+                    <CannabisView
+                      onSelectPhoto={handleSelectPhoto}
+                    />
+                  ) : (
+                    <PlantsView
+                      onOpenNewPlant={handleOpenNewPlant}
+                      onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
+                      onOpenNewEvent={(plantId) => handleOpenNewEvent(plantId)}
+                      onSelectPhoto={handleSelectPhoto}
+                    />
+                  )}
                 </Suspense>
               )}
 
@@ -164,30 +194,54 @@ function MainApp() {
                 </Suspense>
               )}
 
+              {/* Consolidated Care, Schedule, Pests, Library & Metrics */}
+              {activeTab === 'cuidados' && (
+                <CareAndScheduleView
+                  onOpenNewEvent={(plantId, date) => handleOpenNewEvent(plantId, date)}
+                  onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
+                />
+              )}
+
+              {/* Backward compatibility routes mapped directly into CareAndScheduleView */}
               {activeTab === 'calendario' && (
-                <Suspense fallback={<TabLoadingSkeleton />}>
-                  <CalendarView
-                    onOpenNewEvent={(plantId, date) => handleOpenNewEvent(plantId, date)}
-                    onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
-                  />
-                </Suspense>
+                <CareAndScheduleView
+                  initialSubTab="agenda"
+                  onOpenNewEvent={(plantId, date) => handleOpenNewEvent(plantId, date)}
+                  onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
+                />
               )}
 
               {activeTab === 'insights' && (
-                <Suspense fallback={<TabLoadingSkeleton />}>
-                  <InsightsView />
-                </Suspense>
+                <CareAndScheduleView
+                  initialSubTab="metricas"
+                  onOpenNewEvent={(plantId, date) => handleOpenNewEvent(plantId, date)}
+                  onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
+                />
               )}
 
               {activeTab === 'biblioteca' && (
-                <Suspense fallback={<TabLoadingSkeleton />}>
-                  <LibraryView />
-                </Suspense>
+                <CareAndScheduleView
+                  initialSubTab="biblioteca"
+                  onOpenNewEvent={(plantId, date) => handleOpenNewEvent(plantId, date)}
+                  onOpenNewDiary={(plantId) => handleOpenNewDiary(plantId)}
+                />
               )}
 
               {activeTab === 'configuracoes' && (
                 <Suspense fallback={<TabLoadingSkeleton />}>
                   <SettingsView />
+                </Suspense>
+              )}
+
+              {activeTab === 'ia_horta' && (
+                <Suspense fallback={<TabLoadingSkeleton />}>
+                  <IaHortaView onBack={() => setActiveTab('dashboard')} />
+                </Suspense>
+              )}
+
+              {activeTab === 'ia_cannabis' && (
+                <Suspense fallback={<TabLoadingSkeleton />}>
+                  <IaCannabisView onBack={() => setActiveTab('plantas')} />
                 </Suspense>
               )}
             </>
@@ -267,6 +321,27 @@ function MainApp() {
           <WelcomeWalkthroughModal
             isOpen={isWelcomeOpen}
             onClose={() => setIsWelcomeOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Legal & Compliance Modal (Termos, Privacidade, Aviso Cannabis) */}
+      {isLegalModalOpen && (
+        <Suspense fallback={null}>
+          <LegalModal
+            isOpen={isLegalModalOpen}
+            initialDoc={legalDocType}
+            onClose={() => setIsLegalModalOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Beta Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <Suspense fallback={null}>
+          <FeedbackModal
+            isOpen={isFeedbackModalOpen}
+            onClose={() => setIsFeedbackModalOpen(false)}
           />
         </Suspense>
       )}

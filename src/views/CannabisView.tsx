@@ -235,7 +235,8 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
     updateCannabisPlant, 
     deleteCannabisPlant, 
     addCannabisFeedLog, 
-    deleteCannabisFeedLog 
+    deleteCannabisFeedLog,
+    setActiveTab
   } = useApp();
 
   const [activeStageFilter, setActiveStageFilter] = useState<'all' | CannabisGrowthStage>('all');
@@ -341,11 +342,19 @@ export const CannabisView: React.FC<CannabisViewProps> = ({ onSelectPhoto }) => 
           {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={() => setActiveSubTab('genetics')}
-              className="min-h-[44px] flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-[var(--accent-text)] font-bold text-xs shadow-sm transition-transform active:scale-95 cursor-pointer"
+              onClick={() => setActiveTab('ia_cannabis')}
+              className="min-h-[44px] flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs shadow-sm transition-transform active:scale-95 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 stroke-[2.5]" />
-              <span>Assistente de Genética</span>
+              <span>Consultar IA Cannabis</span>
+            </button>
+
+            <button
+              onClick={() => setActiveSubTab('genetics')}
+              className="min-h-[44px] flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] font-medium text-xs transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+              <span>Ficha Genética</span>
             </button>
 
             <button

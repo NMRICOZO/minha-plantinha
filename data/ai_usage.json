@@ -1,0 +1,104 @@
+{
+  "users": {
+    "default_user": {
+      "userId": "default_user",
+      "plan": "gratuito",
+      "dailyLimit": 10,
+      "monthlyLimit": 100,
+      "records": [
+        {
+          "date": "2026-10-23",
+          "month": "2026-10",
+          "type": "horta",
+          "promptTokens": 748,
+          "candidateTokens": 710,
+          "totalTokens": 1458,
+          "costUSD": 0.00035879999999999994,
+          "timestamp": "2026-10-23T14:52:49.003Z"
+        },
+        {
+          "date": "2026-10-23",
+          "month": "2026-10",
+          "type": "cannabis",
+          "promptTokens": 861,
+          "candidateTokens": 1014,
+          "totalTokens": 1875,
+          "costUSD": 0.0004917,
+          "timestamp": "2026-10-23T14:53:02.653Z"
+        }
+      ]
+    },
+    "test_user_1792843193922": {
+      "userId": "test_user_1792843193922",
+      "plan": "gratuito",
+      "dailyLimit": 10,
+      "monthlyLimit": 100,
+      "records": [
+        {
+          "date": "2026-10-24",
+          "month": "2026-10",
+          "type": "horta",
+          "promptTokens": 10000,
+          "candidateTokens": 5000,
+          "totalTokens": 15000,
+          "costUSD": 0.003,
+          "timestamp": "2026-10-24T11:59:53.941Z"
+        }
+      ]
+    },
+    "test_user_1792843210289": {
+      "userId": "test_user_1792843210289",
+      "plan": "gratuito",
+      "dailyLimit": 10,
+      "monthlyLimit": 100,
+      "records": [
+        {
+          "date": "2026-10-24",
+          "month": "2026-10",
+          "type": "horta",
+          "promptTokens": 10000,
+          "candidateTokens": 5000,
+          "totalTokens": 15000,
+          "costUSD": 0.003,
+          "timestamp": "2026-10-24T12:00:10.310Z"
+        }
+      ]
+    },
+    "test_user_1792843403543": {
+      "userId": "test_user_1792843403543",
+      "plan": "gratuito",
+      "dailyLimit": 10,
+      "monthlyLimit": 100,
+      "records": [
+        {
+          "date": "2026-10-24",
+          "month": "2026-10",
+          "type": "horta",
+          "promptTokens": 10000,
+          "candidateTokens": 5000,
+          "totalTokens": 15000,
+          "costUSD": 0.003,
+          "timestamp": "2026-10-24T12:03:23.567Z"
+        }
+      ]
+    },
+    "test_user_1792843601998": {
+      "userId": "test_user_1792843601998",
+      "plan": "gratuito",
+      "dailyLimit": 10,
+      "monthlyLimit": 100,
+      "records": [
+        {
+          "date": "2026-10-24",
+          "month": "2026-10",
+          "type": "horta",
+          "promptTokens": 10000,
+          "candidateTokens": 5000,
+          "totalTokens": 15000,
+          "costUSD": 0.003,
+          "timestamp": "2026-10-24T12:06:42.017Z"
+        }
+      ]
+    }
+  }
+}

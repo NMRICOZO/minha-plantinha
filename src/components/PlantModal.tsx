@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plant, PlantStatus, PlantLocation } from '../types/index.ts';
-import { X, Upload, Sprout, Image as ImageIcon, Check } from 'lucide-react';
+import { X, Upload, Sprout, Image as ImageIcon, Check, Loader2 } from 'lucide-react';
+import { compressImage } from '../utils/imageCompressor.ts';
 
 interface PlantModalProps {
   isOpen: boolean;
@@ -34,19 +35,27 @@ export const PlantModal: React.FC<PlantModalProps> = ({
   const [coverPhotoUrl, setCoverPhotoUrl] = useState(initialPlant?.cover_photo_url || PRESET_PHOTOS[0].url);
   const [notes, setNotes] = useState(initialPlant?.notes || '');
   const [error, setError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setCoverPhotoUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      if (!file.type.startsWith('image/')) {
+        setError('Por favor, selecione um arquivo de imagem válido (PNG, JPG, WebP).');
+        return;
+      }
+      try {
+        setIsCompressing(true);
+        setError(null);
+        const { dataUrl } = await compressImage(file, { maxWidth: 1280, maxHeight: 1280, quality: 0.82 });
+        setCoverPhotoUrl(dataUrl);
+      } catch (err: any) {
+        setError(err.message || 'Erro ao comprimir imagem.');
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
